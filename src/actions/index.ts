@@ -1,1 +1,1 @@
-export { connect, init } from "./main";
+export { connect, init, signMessage } from "./main";
