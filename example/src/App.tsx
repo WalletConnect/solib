@@ -1,4 +1,4 @@
-import { connect, signMessage } from "lanakit";
+import { connect, signMessage } from "solib";
 import { useCallback, useState } from "react";
 import "./App.css";
 

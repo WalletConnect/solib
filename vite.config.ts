@@ -11,8 +11,7 @@ export default defineConfig(() => ({
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
       formats: ["es"],
-      name: "Lanakit",
-      filename: "SOMEFILE.ts",
+      name: "Solib",
     },
     rollupOptions: {
       external: isExternal,

@@ -1,11 +1,11 @@
 {
-  "name": "lanakit",
+  "name": "solib",
   "type": "module",
 	"files": ["dist"],
   "private": true,
   "version": "0.0.0",
-	"main": "./dist/lanakit.js",
-	"module": "./dist/lanakit.js",
+	"main": "./dist/solib.js",
+	"module": "./dist/solib.js",
 	"types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",

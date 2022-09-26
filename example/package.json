@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "lanakit": "file:../",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "solib": "file:../"
   },
   "devDependencies": {
     "@types/react": "^18.0.17",
