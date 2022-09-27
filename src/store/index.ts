@@ -1,12 +1,15 @@
 import { proxy } from "valtio";
-import { BaseConnector } from "../connectors/base";
+import { Connector } from "../connectors/base";
+import { ClusterName } from "../defaults/clusters";
 
 export interface StoreConfig {
-  connectors: BaseConnector[];
+  connectors: Connector[];
+  chosenCluster: ClusterName;
 }
 
 interface State {
-  connectors: BaseConnector[];
+  connectors: Connector[];
+  chosenCluster: ClusterName;
   address?: string;
 }
 
@@ -32,6 +35,14 @@ class Store {
 
   public getAddress() {
     return this.get("address");
+  }
+
+  public setCluster(cluster: ClusterName) {
+    this.set("chosenCluster", cluster);
+  }
+
+  public getCluster() {
+    return this.get("chosenCluster");
   }
 
   public getConnectors() {

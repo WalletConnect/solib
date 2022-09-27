@@ -14,3 +14,11 @@ export const devnet: Cluster = {
   name: "devnet",
   endpoint: "https://api.devnet.solana.com",
 };
+
+export const solanaClusters = {
+  mainnetBeta,
+  testnet,
+  devnet,
+};
+
+export type ClusterName = keyof typeof solanaClusters;

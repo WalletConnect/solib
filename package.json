@@ -1,12 +1,14 @@
 {
   "name": "solib",
   "type": "module",
-	"files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "private": true,
   "version": "0.0.0",
-	"main": "./dist/solib.js",
-	"module": "./dist/solib.js",
-	"types": "./dist/index.d.ts",
+  "main": "./dist/solib.js",
+  "module": "./dist/solib.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && tsc --emitDeclarationOnly",
@@ -18,6 +20,8 @@
   },
   "dependencies": {
     "@solana/web3.js": "^1.63.0",
+    "bs58": "^5.0.0",
+    "buffer": "^6.0.3",
     "valtio": "^1.7.0"
   }
 }
