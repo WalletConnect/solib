@@ -2,6 +2,26 @@
 
 Solana friendly API
 
+# Current Capabilities
+
+## API
+- Connect Wallet:
+  - Phantom
+- Get balance
+- Sign Transaction
+- Send Transaction
+- Sign and send Transaction
+- Sign Message
+
+## Internals
+- Generic transaction construction
+- Using cluster `sendTransaction` to avoid depending on aa wallet's
+  implementation, only having to use their `signMessage` function
+- Internal store maintaining state
+- Base connector to help with making future connectors (Eg: WalletConnect
+  connector)
+- Generic typing
+
 # Development
 
 For now when developing, feel free to use the `example/dev.sh` to help with
