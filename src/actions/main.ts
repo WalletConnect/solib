@@ -1,29 +1,10 @@
-import { Connector } from "../connectors/base";
 import Store, { StoreConfig } from "../store";
-import { TransactionArgs, TransactionType } from "../types/requests";
 import { polyfill } from "../utils/buffer";
+import { withConnector } from "../utils/connector";
 
 export function init(config: StoreConfig) {
   polyfill();
   new Store(config);
-}
-
-function getDefaultConnector() {
-  const store = new Store();
-  const connector = store.getConnectors()[0];
-  return connector;
-}
-
-async function withConnector<T>(
-  withConnectorFunc: (connector: Connector) => Promise<T>
-) {
-  const connector = getDefaultConnector();
-
-  if (connector.isAvailable()) {
-    return await withConnectorFunc(connector);
-  }
-
-  return null;
 }
 
 export async function connect() {
@@ -46,28 +27,4 @@ export async function getBalance(requestedAddress?: string) {
 
 export async function getAddress() {
   return new Store().getAddress();
-}
-
-export async function signTransaction<Type extends TransactionType>(
-  type: Type,
-  transactionArgs: TransactionArgs[Type]
-) {
-  return withConnector(async (connector) => {
-    return await connector.signTransaction(type, transactionArgs);
-  });
-}
-
-export async function sendTransaction(encodedTransaction: string) {
-  return withConnector(async (connector) => {
-    return await connector.sendTransaction(encodedTransaction);
-  });
-}
-
-export async function signAndSendTransaction<Type extends TransactionType>(
-  type: Type,
-  transactionArgs: TransactionArgs[Type]
-) {
-  return withConnector(async (connector) => {
-    return await connector.signAndSendTransaction(type, transactionArgs);
-  });
 }

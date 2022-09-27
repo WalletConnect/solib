@@ -1,10 +1,7 @@
+export { connect, init, signMessage, getBalance, getAddress } from "./main";
+
 export {
-  connect,
-  init,
-  signMessage,
-  getBalance,
   signAndSendTransaction,
-  getAddress,
   signTransaction,
   sendTransaction,
-} from "./main";
+} from "./transactions";
