@@ -16,7 +16,7 @@ function App() {
   const [amount, setAmount] = useState<number>(0);
   const onClick = useCallback(() => {
     connect()
-      .then((connectResp) => setAddress(connectResp?.publicKey.toString()))
+      .then((publicKey) => setAddress(publicKey!))
       .then(() => {
         getBalance().then((value) => setBalance(value.toString()));
       });
@@ -34,7 +34,11 @@ function App() {
     (to: string, amountInLamports: number) => {
       console.log({ to, amountInLamports });
       if (to && amountInLamports) {
-        signAndSendTransaction(to, amountInLamports).then((result) => {
+        signAndSendTransaction("transfer", {
+          to,
+          amountInLamports,
+          feePayer: "from",
+        }).then((result) => {
           console.log({ result });
         });
       }

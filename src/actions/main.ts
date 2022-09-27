@@ -1,5 +1,6 @@
-import { Connector, TransactionType } from "../connectors/base";
+import { Connector } from "../connectors/base";
 import Store, { StoreConfig } from "../store";
+import { TransactionArgs, TransactionType } from "../types/requests";
 import { polyfill } from "../utils/buffer";
 
 export function init(config: StoreConfig) {
@@ -43,16 +44,30 @@ export async function getBalance(requestedAddress?: string) {
   });
 }
 
-export async function signAndSendTransaction(
-  to: string,
-  amountInLamports: number,
-  type: TransactionType = "transfer"
+export async function getAddress() {
+  return new Store().getAddress();
+}
+
+export async function signTransaction<Type extends TransactionType>(
+  type: Type,
+  transactionArgs: TransactionArgs[Type]
 ) {
   return withConnector(async (connector) => {
-    return await connector.signAndSendTransaction({
-      type,
-      amountInLamports,
-      to,
-    });
+    return await connector.signTransaction(type, transactionArgs);
+  });
+}
+
+export async function sendTransaction(encodedTransaction: string) {
+  return withConnector(async (connector) => {
+    return await connector.sendTransaction(encodedTransaction);
+  });
+}
+
+export async function signAndSendTransaction<Type extends TransactionType>(
+  type: Type,
+  transactionArgs: TransactionArgs[Type]
+) {
+  return withConnector(async (connector) => {
+    return await connector.signAndSendTransaction(type, transactionArgs);
   });
 }

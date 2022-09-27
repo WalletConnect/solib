@@ -1,67 +1,26 @@
+import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { solanaClusters } from "../defaults/clusters";
 import Store from "../store";
-import { ConnectResponse } from "../types/provider";
-
-export interface ClusterRequestMethods {
-  sendTransaction: {
-    // Signed, serialized transaction
-    params: Array<string>;
-    returns: string;
-  };
-
-  getBalance: {
-    params: Array<string>;
-    returns: {
-      value: number;
-    };
-  };
-
-  getLatestBlockhash: {
-    params: [{ commitment: string }];
-    returns: {
-      value: {
-        blockhash: string;
-      };
-    };
-  };
-}
-
-export interface RequestMethods {
-  signMessage: {
-    params: {
-      message: Uint8Array;
-      format: string;
-    };
-    returns: {
-      signature: string;
-    };
-  };
-
-  signTransaction: {
-    params: {
-      // Serialized transaction
-      message: string;
-    };
-    returns: {
-      serialize: () => string;
-    };
-  };
-}
-
-export type TransactionType = "transfer";
-export type TransactionArgs = {
-  to: string;
-  amountInLamports: number;
-  type: TransactionType;
-};
+import {
+  ClusterRequestMethods,
+  RequestMethods,
+  TransactionArgs,
+  TransactionType,
+} from "../types/requests";
 
 export interface Connector {
   isAvailable: () => boolean;
-  connect: () => Promise<ConnectResponse | null>;
+  connect: () => Promise<string>;
   signMessage: (message: string) => any;
-  signAndSendTransaction: (
-    params: TransactionArgs
-  ) => Promise<{ signature: string }>;
+  signTransaction: <Type extends TransactionType>(
+    type: Type,
+    params: TransactionArgs[Type]
+  ) => Promise<string>;
+  sendTransaction: (encodedTransaction: string) => Promise<string>;
+  signAndSendTransaction: <Type extends TransactionType>(
+    type: Type,
+    params: TransactionArgs[Type]
+  ) => Promise<string>;
   getBalance: (requestedAddress?: string) => any;
 }
 
@@ -77,6 +36,55 @@ export class BaseConnector {
     params: RequestMethods[Method]["params"]
   ): Promise<RequestMethods[Method]["returns"]> {
     return this.getProvider()?.request({ method, params });
+  }
+
+  protected async constructTransaction<Type extends TransactionType>(
+    type: Type,
+    params: TransactionArgs[Type]
+  ) {
+    const transaction = new Transaction();
+
+    const fromAddress = new Store().getAddress();
+
+    if (!fromAddress) throw new Error("No address connected");
+
+    switch (type) {
+      case "transfer":
+        const fromPubkey = new PublicKey(fromAddress);
+        const toPubkey = new PublicKey(params.to);
+        transaction.add(
+          SystemProgram.transfer({
+            fromPubkey,
+            toPubkey,
+            lamports: params.amountInLamports,
+          })
+        );
+        transaction.feePayer =
+          params.feePayer === "from" ? fromPubkey : toPubkey;
+    }
+
+    let { value } = await this.requestCluster("getLatestBlockhash", [{}]);
+    const { blockhash: recentBlockhash } = value;
+    transaction.recentBlockhash = recentBlockhash;
+
+    return transaction;
+  }
+
+  public async sendTransaction(encodedTransaction: string) {
+    const signature = await this.requestCluster("sendTransaction", [
+      encodedTransaction,
+    ]);
+
+    return signature;
+  }
+
+  public async getBalance(requestedAddress?: string) {
+    const address = requestedAddress ?? new Store().getAddress();
+    if (!address) return null;
+
+    const balance = await this.requestCluster("getBalance", [address]);
+
+    return balance.value;
   }
 
   public async requestCluster<Method extends keyof ClusterRequestMethods>(
@@ -95,8 +103,6 @@ export class BaseConnector {
       }).then((res) => {
         return res.json();
       });
-
-    console.log({ res });
 
     return res.result;
   }
