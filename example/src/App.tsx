@@ -6,6 +6,18 @@ import {
 } from "solib";
 import { useCallback, useState } from "react";
 import "./App.css";
+import {
+  Badge,
+  Button,
+  Flex,
+  Heading,
+  Input,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+} from "@chakra-ui/react";
 
 function App() {
   const [address, setAddress] = useState<string | undefined>("");
@@ -48,37 +60,67 @@ function App() {
 
   return (
     <div className="App">
-      <button onClick={onClick}>Connect</button>
-      <address>{address}</address>
-      <address>Balance: {balance}</address>
-      {address && (
-        <div>
-          <div>
-            <input
-              type="text"
-              onChange={({ target }) => {
-                console.log({ val: target.value });
-                setToAddress(target.value);
-              }}
-            ></input>
-            <input
-              type="number"
-              onChange={({ target }) => setAmount(Number(target.value))}
-            ></input>
-            <button onClick={() => onSendTransaction(toAddress!, amount)}>
-              Send Transaction{" "}
-            </button>
-          </div>
-          <div>
-            <input
-              type="text"
-              onChange={({ target }) => setMessage(target.value)}
-            ></input>
-            <button onClick={() => onSign(message)}>Sign Message</button>
-            <address>Signature: {signature}</address>
-          </div>
-        </div>
-      )}
+      <Heading mb="5em">Solib Example</Heading>
+      <Flex gap="10" flexDirection="column" width={"100%"}>
+        {!address && <Button onClick={onClick}>Connect</Button>}
+        {address && (
+          <Flex gap="5" flexDirection="column" alignItems={"flex-start"}>
+            <Badge fontSize="1em" fontStyle={"italic"}>
+              Address {address}
+            </Badge>
+            <Badge fontSize="1em" fontStyle={"italic"}>
+              Balance: {balance}
+            </Badge>
+          </Flex>
+        )}
+        {address && (
+          <Flex gap="5" flexDirection="column" alignItems={"flex-start"}>
+            <Flex
+              justifyContent="space-between"
+              alignItems="center"
+              width="100%"
+            >
+              <Flex gap="2" flexDirection="column">
+                <Input
+                  type="text"
+                  placeholder="Send to.."
+                  onChange={({ target }) => {
+                    setToAddress(target.value);
+                  }}
+                ></Input>
+                <NumberInput
+                  placeholder="Amount to send"
+                  onChange={(_, value) => {
+                    setAmount(value);
+                  }}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </Flex>
+              <Button onClick={() => onSendTransaction(toAddress!, amount)}>
+                Send Transaction
+              </Button>
+            </Flex>
+            <Flex flexDirection="column" gap="3" width="100%">
+              <Flex justifyContent="space-between" width="100%">
+                <Flex>
+                  <Input
+                    type="text"
+                    placeholder="Message to sign..."
+                    onChange={({ target }) => setMessage(target.value)}
+                  ></Input>
+                </Flex>
+                <Button onClick={() => onSign(message)}>Sign Message</Button>
+              </Flex>
+              <address>Signature: {signature}</address>
+            </Flex>
+          </Flex>
+        )}
+      </Flex>
     </div>
   );
 }
