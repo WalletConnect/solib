@@ -1,3 +1,9 @@
+export interface ClusterSubscribeRequestMethods {
+  signatureSubscribe: {
+    params: Array<string>;
+    returns: any;
+  };
+}
 export interface ClusterRequestMethods {
   sendTransaction: {
     // Signed, serialized transaction

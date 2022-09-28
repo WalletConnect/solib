@@ -3,6 +3,7 @@ import {
   signMessage,
   getBalance,
   signAndSendTransaction,
+  watchTransaction,
 } from "solib";
 import { useCallback, useState } from "react";
 import "./App.css";
@@ -52,6 +53,7 @@ function App() {
           feePayer: "from",
         }).then((result) => {
           console.log({ result });
+          watchTransaction(result!);
         });
       }
     },

@@ -4,4 +4,5 @@ export {
   signAndSendTransaction,
   signTransaction,
   sendTransaction,
+  watchTransaction,
 } from "./transactions";
