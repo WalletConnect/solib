@@ -24,6 +24,7 @@ Solana friendly API
 - Generic typing
 - From scratch cluster websocket factory so we can listen to events and attach
   custom listeners in the future, in a generic manner.
+- Unsub functionality
 
 # Development
 
