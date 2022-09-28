@@ -9,6 +9,7 @@ import {
   TransactionArgs,
   TransactionType,
 } from "../types/requests";
+import { ClusterFactory } from "../utils/clusterFactory";
 import { waitForOpenConnection } from "../utils/websocket";
 
 export interface Connector {
@@ -27,72 +28,6 @@ export interface Connector {
   getBalance: (requestedAddress?: string) => any;
   watchTransaction: (transactionSignature: string) => any;
 }
-
-const WebsocketFactory = (function () {
-  let socket: WebSocket | undefined;
-  let listeners: Record<
-    number,
-    { callback: (params: any) => void; method: string; id: number }
-  > = proxy({});
-  function setSocket() {
-    const cluster = new Store().getCluster();
-    const endpoint = solanaClusters[cluster].endpoint;
-    socket = new WebSocket(endpoint.replace("http", "ws"));
-
-    socket.onmessage = (ev) => {
-      const data = JSON.parse(ev.data);
-
-      console.log({ data, listeners });
-
-      // If request is a subscribtion init notification
-      // Copy data to new ID (request ID -> Subscribtion ID)
-      if (data.id) {
-        listeners[data.result] = { ...listeners[data.id] };
-        delete listeners[data.id];
-      }
-
-      if (data.params?.subscription) {
-        console.log("Found subscription", data.params.subscription);
-        listeners[data.params.subscription].callback(data.params.result);
-      }
-    };
-  }
-
-  function registerListener<
-    Method extends keyof ClusterSubscribeRequestMethods
-  >(
-    method: Method,
-    params: ClusterSubscribeRequestMethods[Method]["params"],
-    callback: (params: any) => void
-  ) {
-    if (!socket) throw new Error("socket not initialized");
-    const id = new Store().getNewRequestId();
-    socket.send(
-      JSON.stringify({
-        method,
-        params,
-        jsonrpc: "2.0",
-        id,
-      })
-    );
-
-    listeners[id] = { method, callback, id };
-  }
-
-  return {
-    registerListener,
-    getSocket: function () {
-      if (!socket) {
-        setSocket();
-      }
-      return socket;
-    },
-    waitForOpen: function () {
-      if (!socket) throw new Error("socket not initialized");
-      return waitForOpenConnection(socket);
-    },
-  };
-})();
 
 export class BaseConnector {
   protected getProvider(): {
@@ -174,11 +109,7 @@ export class BaseConnector {
     params: ClusterSubscribeRequestMethods[Method]["returns"],
     callback: (params: any) => void
   ) {
-    WebsocketFactory.getSocket()!;
-
-    await WebsocketFactory.waitForOpen();
-
-    WebsocketFactory.registerListener(method, params, callback);
+    ClusterFactory.registerListener(method, params, callback);
   }
 
   public async requestCluster<Method extends keyof ClusterRequestMethods>(
