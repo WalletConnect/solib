@@ -12,6 +12,7 @@ Solana friendly API
 - Send Transaction
 - Sign and send Transaction
 - Sign Message
+- Watch Transactions
 
 ## Internals
 - Generic transaction construction
@@ -21,6 +22,8 @@ Solana friendly API
 - Base connector to help with making future connectors (Eg: WalletConnect
   connector)
 - Generic typing
+- From scratch cluster websocket factory so we can listen to events and attach
+  custom listeners in the future, in a generic manner.
 
 # Development
 
