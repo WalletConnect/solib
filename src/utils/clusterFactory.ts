@@ -10,6 +10,7 @@ export const ClusterFactory = (function () {
     number,
     { callback: (params: any) => void; method: string; id: number }
   > = proxy({});
+  let subIdToReqId: Record<number, number> = proxy({});
   async function setSocket() {
     const cluster = new Store().getCluster();
     const endpoint = solanaClusters[cluster].endpoint;
@@ -19,18 +20,17 @@ export const ClusterFactory = (function () {
     socket.onmessage = (ev) => {
       const data = JSON.parse(ev.data);
 
-      console.log({ data, listeners });
-
       // If request is a subscribtion init notification
       // Copy data to new ID (request ID -> Subscribtion ID)
       if (data.id) {
-        listeners[data.result] = { ...listeners[data.id] };
-        delete listeners[data.id];
+        subIdToReqId[data.result] = data.id;
       }
 
       if (data.params?.subscription) {
         console.log("Found subscription", data.params.subscription);
-        listeners[data.params.subscription].callback(data.params.result);
+        listeners[subIdToReqId[data.params.subscription]].callback(
+          data.params.result
+        );
       }
     };
   }
@@ -54,10 +54,31 @@ export const ClusterFactory = (function () {
     );
 
     listeners[id] = { method, callback, id };
+
+    return id;
+  }
+
+  async function unregisterListener(id: number) {
+    const { method } = listeners[id];
+    const subscriptionId = Number(
+      Object.entries(subIdToReqId).filter(([_, value]) => value === id)[0][0]
+    );
+
+    const unsubscribeMethod = method.replace("Subscribe", "Unsubscribe");
+
+    socket!.send(
+      JSON.stringify({
+        method: unsubscribeMethod,
+        params: [subscriptionId],
+        jsonrpc: "2.0",
+        id: new Store().getNewRequestId(),
+      })
+    );
   }
 
   return {
     registerListener,
+    unregisterListener,
     getSocket: async function () {
       if (!socket) {
         await setSocket();

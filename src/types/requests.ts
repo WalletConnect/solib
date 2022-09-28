@@ -3,6 +3,10 @@ export interface ClusterSubscribeRequestMethods {
     params: Array<string>;
     returns: any;
   };
+  signatureUnsubscribe: {
+    params: Array<number>;
+    returns: any;
+  };
 }
 export interface ClusterRequestMethods {
   sendTransaction: {

@@ -27,7 +27,7 @@ export interface Connector {
   watchTransaction: (
     transactionSignature: string,
     callback: (params: any) => void
-  ) => any;
+  ) => Promise<() => void>;
 }
 
 export class BaseConnector {
@@ -35,13 +35,6 @@ export class BaseConnector {
     request: (args: { method: any; params: any }) => any;
   } | null {
     return null;
-  }
-
-  public async request<Method extends keyof RequestMethods>(
-    method: Method,
-    params: RequestMethods[Method]["params"]
-  ): Promise<RequestMethods[Method]["returns"]> {
-    return this.getProvider()?.request({ method, params });
   }
 
   protected async constructTransaction<Type extends TransactionType>(
@@ -88,7 +81,7 @@ export class BaseConnector {
     transactionSignature: string,
     callback: (params: any) => void
   ) {
-    this.subscribeToCluster(
+    return await this.subscribeToCluster(
       "signatureSubscribe",
       [transactionSignature],
       callback
@@ -104,6 +97,13 @@ export class BaseConnector {
     return balance.value;
   }
 
+  public async request<Method extends keyof RequestMethods>(
+    method: Method,
+    params: RequestMethods[Method]["params"]
+  ): Promise<RequestMethods[Method]["returns"]> {
+    return this.getProvider()?.request({ method, params });
+  }
+
   public async subscribeToCluster<
     Method extends keyof ClusterSubscribeRequestMethods
   >(
@@ -111,7 +111,11 @@ export class BaseConnector {
     params: ClusterSubscribeRequestMethods[Method]["returns"],
     callback: (params: any) => void
   ) {
-    ClusterFactory.registerListener(method, params, callback);
+    const id = await ClusterFactory.registerListener(method, params, callback);
+
+    return async () => {
+      await ClusterFactory.unregisterListener(id);
+    };
   }
 
   public async requestCluster<Method extends keyof ClusterRequestMethods>(

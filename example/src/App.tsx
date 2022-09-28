@@ -53,14 +53,21 @@ function App() {
           to,
           amountInLamports,
           feePayer: "from",
-        }).then((result) => {
+        }).then(async (result) => {
           console.log({ result });
-          watchTransaction(result!, () => {
+          const unsub = await watchTransaction(result!, () => {
             toast({
               status: "success",
               title: "Transaction successful",
             });
           });
+          setTimeout(() => {
+            unsub?.();
+            toast({
+              status: "info",
+              title: "Unsubscribed from transaction",
+            });
+          }, 200);
         });
       }
     },
