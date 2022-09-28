@@ -22,6 +22,16 @@ export interface ClusterRequestMethods {
     };
   };
 
+  getAccountInfo: {
+    params: [string, { commitment?: string }];
+    returns: any;
+  };
+
+  getProgramAccounts: {
+    params: [string, { commitment?: string, filters?: Array<any>, encoding?: string }];
+    returns: any;
+  };
+
   getLatestBlockhash: {
     params: [{ commitment?: string }];
     returns: {

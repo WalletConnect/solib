@@ -4,6 +4,7 @@ import {
   getBalance,
   signAndSendTransaction,
   watchTransaction,
+  fetchName,
 } from "solib";
 import { useCallback, useState } from "react";
 import "./App.css";
@@ -24,6 +25,7 @@ import {
 function App() {
   const toast = useToast();
   const [address, setAddress] = useState<string | undefined>("");
+  const [name, setName] = useState<string | undefined>("");
   const [balance, setBalance] = useState<string | undefined>("");
   const [signature, setSignature] = useState<string | undefined>("");
   const [message, setMessage] = useState<string | undefined>("");
@@ -34,6 +36,7 @@ function App() {
       .then((publicKey) => setAddress(publicKey!))
       .then(() => {
         getBalance().then((value) => setBalance(value.toString()));
+        fetchName({address: 'E6LRQGNhK6QVpJwCWUeeG3aBM2GbnsvCJUBF3xe4pb8Y'}).then((name) => setName(name));
       });
   }, []);
 
@@ -136,6 +139,9 @@ function App() {
             </Flex>
           </Flex>
         )}
+        {name && (
+          <Flex>Ens {name}</Flex>
+        )} 
       </Flex>
     </div>
   );

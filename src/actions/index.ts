@@ -6,3 +6,5 @@ export {
   sendTransaction,
   watchTransaction,
 } from "./transactions";
+
+export { fetchName } from "./nameService";
