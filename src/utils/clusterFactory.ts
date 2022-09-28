@@ -10,10 +10,11 @@ export const ClusterFactory = (function () {
     number,
     { callback: (params: any) => void; method: string; id: number }
   > = proxy({});
-  function setSocket() {
+  async function setSocket() {
     const cluster = new Store().getCluster();
     const endpoint = solanaClusters[cluster].endpoint;
     socket = new WebSocket(endpoint.replace("http", "ws"));
+    await waitForOpenConnection(socket!);
 
     socket.onmessage = (ev) => {
       const data = JSON.parse(ev.data);
@@ -34,14 +35,14 @@ export const ClusterFactory = (function () {
     };
   }
 
-  function registerListener<
+  async function registerListener<
     Method extends keyof ClusterSubscribeRequestMethods
   >(
     method: Method,
     params: ClusterSubscribeRequestMethods[Method]["params"],
     callback: (params: any) => void
   ) {
-    if (!socket) setSocket();
+    if (!socket) await setSocket();
     const id = new Store().getNewRequestId();
     socket!.send(
       JSON.stringify({
@@ -59,9 +60,8 @@ export const ClusterFactory = (function () {
     registerListener,
     getSocket: async function () {
       if (!socket) {
-        setSocket();
+        await setSocket();
       }
-      waitForOpenConnection(socket!);
       return socket;
     },
   };

@@ -25,8 +25,11 @@ export async function signAndSendTransaction<Type extends TransactionType>(
   });
 }
 
-export async function watchTransaction(transactionSignature: string) {
+export async function watchTransaction(
+  transactionSignature: string,
+  callback: (params: any) => void
+) {
   return withConnector(async (connector) => {
-    return await connector.watchTransaction(transactionSignature);
+    return await connector.watchTransaction(transactionSignature, callback);
   });
 }

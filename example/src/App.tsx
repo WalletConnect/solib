@@ -18,9 +18,11 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
+  useToast,
 } from "@chakra-ui/react";
 
 function App() {
+  const toast = useToast();
   const [address, setAddress] = useState<string | undefined>("");
   const [balance, setBalance] = useState<string | undefined>("");
   const [signature, setSignature] = useState<string | undefined>("");
@@ -53,7 +55,12 @@ function App() {
           feePayer: "from",
         }).then((result) => {
           console.log({ result });
-          watchTransaction(result!);
+          watchTransaction(result!, () => {
+            toast({
+              status: "success",
+              title: "Transaction successful",
+            });
+          });
         });
       }
     },

@@ -1,5 +1,4 @@
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-import { proxy } from "valtio";
 import { solanaClusters } from "../defaults/clusters";
 import Store from "../store";
 import {
@@ -10,7 +9,6 @@ import {
   TransactionType,
 } from "../types/requests";
 import { ClusterFactory } from "../utils/clusterFactory";
-import { waitForOpenConnection } from "../utils/websocket";
 
 export interface Connector {
   isAvailable: () => boolean;
@@ -26,7 +24,10 @@ export interface Connector {
     params: TransactionArgs[Type]
   ) => Promise<string>;
   getBalance: (requestedAddress?: string) => any;
-  watchTransaction: (transactionSignature: string) => any;
+  watchTransaction: (
+    transactionSignature: string,
+    callback: (params: any) => void
+  ) => any;
 }
 
 export class BaseConnector {
@@ -83,13 +84,14 @@ export class BaseConnector {
     return signature;
   }
 
-  public async watchTransaction(transactionSignature: string) {
+  public async watchTransaction(
+    transactionSignature: string,
+    callback: (params: any) => void
+  ) {
     this.subscribeToCluster(
       "signatureSubscribe",
       [transactionSignature],
-      (params) => {
-        console.log({ transactionAction: params.context });
-      }
+      callback
     );
   }
 
