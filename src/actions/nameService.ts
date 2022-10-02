@@ -2,6 +2,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { sha256 } from "@ethersproject/sha2";
 import { deserializeUnchecked, Schema, deserialize } from "borsh";
 import BN from "bn.js";
+import { solanaClusters } from "../defaults/clusters";
 
 export type FetchNameArgs = {
   address: string
@@ -20,7 +21,7 @@ export type FetchNameResult = string | null
 * @returns
 */
 export async function fetchName(args: FetchNameArgs): Promise<FetchNameResult> {
-  const connection = new Connection('https://solana-mainnet.g.alchemy.com/v2/6PX0-A50M0FvqrjQ8HKPFEAWWscpGWkF', 'confirmed');
+  const connection = new Connection(solanaClusters.mainnetBeta.endpoint, 'confirmed');
   const address = new PublicKey(args.address);
 
   try {
