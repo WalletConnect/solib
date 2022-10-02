@@ -33,10 +33,12 @@ function App() {
   const [amount, setAmount] = useState<number>(0);
   const onClick = useCallback(() => {
     connect()
-      .then((publicKey) => setAddress(publicKey!))
-      .then(() => {
+      .then((publicKey) => {setAddress(publicKey!); return publicKey})
+      .then((publicKey) => {
         getBalance().then((value) => setBalance(value.toString()));
-        fetchName({address: 'E6LRQGNhK6QVpJwCWUeeG3aBM2GbnsvCJUBF3xe4pb8Y'}).then((name) => setName(name));
+        fetchName({address: publicKey}).then((name) => {
+          setName(name || publicKey);
+        });
       });
   }, []);
 
@@ -140,7 +142,7 @@ function App() {
           </Flex>
         )}
         {name && (
-          <Flex>Ens {name}</Flex>
+          <Flex>SNS Name: {name}</Flex>
         )} 
       </Flex>
     </div>

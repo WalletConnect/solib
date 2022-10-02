@@ -2,12 +2,48 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { sha256 } from "@ethersproject/sha2";
 import { deserializeUnchecked, Schema, deserialize } from "borsh";
 import BN from "bn.js";
-import { solanaClusters } from "../defaults/clusters";
+
+export type FetchNameArgs = {
+  address: string
+}
+
+export type FetchNameResult = string | null
+
+/**
+* Retrieves a domain name to display for a user if any
+* First it attempts to get the favorite domain.
+* This feature doesn't appear to commonly be used hence
+* if none is set we try to capture other domains associated to the
+* account and use the first one that pops up.
+* @param connection The Solana RPC connection object
+* @param owner The owner you want to retrieve the favorite domain for
+* @returns
+*/
+export async function fetchName(args: FetchNameArgs): Promise<FetchNameResult> {
+  const connection = new Connection('https://solana-mainnet.g.alchemy.com/v2/6PX0-A50M0FvqrjQ8HKPFEAWWscpGWkF', 'confirmed');
+  const address = new PublicKey(args.address);
+
+  try {
+    return (await getFavoriteDomain(connection, address)).reverse;
+  } catch (e) {}
+
+  const otherDomains = await getSolDomainsFromPublicKey(connection, address);
+
+  return otherDomains.length > 0 ? otherDomains[0] : null;
+}
+
+async function getSolDomainsFromPublicKey(connection: Connection, wallet: PublicKey):Promise<string[]>{
+  const allDomainKeys = await getAllDomains(connection, wallet);
+  const allDomainNames = await Promise.all(allDomainKeys.map((key: PublicKey) => {
+    return performReverseLookup(connection, key)
+  }));
+  return allDomainNames;
+}
 
 /**
  * Account tags (used for deserialization on-chain)
  */
- export enum Tag {
+enum Tag {
   Uninitialized = 0,
   ActiveOffer = 1,
   CancelledOffer = 2,
@@ -44,11 +80,11 @@ const NAME_PROGRAM_ID = new PublicKey(
 /**
  * The reverse look up class
  */
- export const REVERSE_LOOKUP_CLASS = new PublicKey(
+const REVERSE_LOOKUP_CLASS = new PublicKey(
   "33m47vH6Eav6jr5Ry86XjhRft2jRBLDnDgPSHoquXi2Z"
 );
 
-export class FavouriteDomain {
+class FavouriteDomain {
   tag: Tag;
   nameAccount: PublicKey;
 
@@ -107,7 +143,7 @@ export class FavouriteDomain {
   }
 }
 
-export class NameRegistryState {
+class NameRegistryState {
   static HEADER_LEN = 96;
   parentName: PublicKey;
   owner: PublicKey;
@@ -194,13 +230,13 @@ export class NameRegistryState {
   }
 }
 
-export async function getHashedName(name: string): Promise<Buffer> {
+async function getHashedName(name: string): Promise<Buffer> {
   const input = HASH_PREFIX + name;
   const str = sha256(Buffer.from(input, "utf8")).slice(2);
   return Buffer.from(str, "hex");
 }
 
-export async function getNameAccountKey(
+async function getNameAccountKey(
   hashed_name: Buffer,
   nameClass?: PublicKey,
   nameParent?: PublicKey
@@ -223,7 +259,7 @@ export async function getNameAccountKey(
   return nameAccountKey;
 }
 
-export async function performReverseLookup(
+async function performReverseLookup(
   connection: Connection,
   nameAccount: PublicKey
 ): Promise<string> {
@@ -250,7 +286,7 @@ export async function performReverseLookup(
  * @param wallet The wallet you want to search domain names for
  * @returns
  */
- export async function getAllDomains(
+async function getAllDomains(
   connection: Connection,
   wallet: PublicKey
 ): Promise<PublicKey[]> {
@@ -271,8 +307,8 @@ export async function performReverseLookup(
   const accounts = await connection.getProgramAccounts(NAME_PROGRAM_ID, {
     filters,
   });
-  console.log('nameService::getAllDomains::accounts', accounts);
-  return accounts.map((a) => a.pubkey);
+  
+  return accounts.map((a) => a.pubkey).slice(0, 5);
 }
 
 /**
@@ -294,44 +330,3 @@ const getFavoriteDomain = async (
 
   return { domain: favorite.nameAccount, reverse };
 };
-
-const getAllSolDomains = async (
-  connection: Connection,
-  address: PublicKey
-) => {
-  const keys = await getAllDomains(connection, address);
-  const solNames = await Promise.all(keys.map(key=>{
-    return performReverseLookup(connection,key);
-  }));
-  
-  return solNames;
-};
-
-export type FetchNameArgs = {
-    address: string
-  }
-  
-export type FetchNameResult = string | null
-
-/**
- * Retrieves a domain name to display for a user if any
- * First it attempts to get the favorite domain.
- * This feature doesn't appear to commonly be used hence
- * if none is set we try to capture other domains associated to the
- * account and use the first one that pops up.
- * @param connection The Solana RPC connection object
- * @param owner The owner you want to retrieve the favorite domain for
- * @returns
- */
-export async function fetchName(args: FetchNameArgs): Promise<FetchNameResult> {
-    const connection = new Connection(solanaClusters.mainnetBeta.endpoint, 'confirmed');
-    const address = new PublicKey(args.address);
-
-    try {
-      return (await getFavoriteDomain(connection, address)).reverse;
-    } catch (e) {}
-
-    const otherDomains = await getAllSolDomains(connection, address);
-
-    return otherDomains.length > 0 ? otherDomains[0] : null;
-}
