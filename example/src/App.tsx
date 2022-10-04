@@ -4,6 +4,7 @@ import {
   getBalance,
   signAndSendTransaction,
   watchTransaction,
+  fetchName,
 } from "solib";
 import { useCallback, useState } from "react";
 import "./App.css";
@@ -24,6 +25,7 @@ import {
 function App() {
   const toast = useToast();
   const [address, setAddress] = useState<string | undefined>("");
+  const [name, setName] = useState<string | undefined>("");
   const [balance, setBalance] = useState<string | undefined>("");
   const [signature, setSignature] = useState<string | undefined>("");
   const [message, setMessage] = useState<string | undefined>("");
@@ -31,9 +33,12 @@ function App() {
   const [amount, setAmount] = useState<number>(0);
   const onClick = useCallback(() => {
     connect()
-      .then((publicKey) => setAddress(publicKey!))
-      .then(() => {
+      .then((publicKey) => {setAddress(publicKey!); return publicKey})
+      .then((publicKey) => {
         getBalance().then((value) => setBalance(value.toString()));
+        fetchName({address: publicKey}).then((name) => {
+          setName(name || publicKey);
+        });
       });
   }, []);
 
@@ -136,6 +141,9 @@ function App() {
             </Flex>
           </Flex>
         )}
+        {name && (
+          <Flex>SNS Name: {name}</Flex>
+        )} 
       </Flex>
     </div>
   );
