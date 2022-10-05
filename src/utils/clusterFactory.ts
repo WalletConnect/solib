@@ -1,4 +1,4 @@
-import { proxy } from "valtio";
+import { proxy } from "valtio/vanilla";
 import { solanaClusters } from "../defaults/clusters";
 import Store from "../store";
 import { ClusterSubscribeRequestMethods } from "../types/requests";

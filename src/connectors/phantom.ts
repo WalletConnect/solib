@@ -32,7 +32,7 @@ declare global {
 export class PhantomConnector extends BaseConnector implements Connector {
   protected getProvider() {
     if (typeof window !== "undefined" && window.phantom) {
-      return window.phantom.solana;
+      return Promise.resolve(window.phantom.solana);
     }
     throw new Error("No Phantom provider found");
   }
@@ -42,7 +42,7 @@ export class PhantomConnector extends BaseConnector implements Connector {
   }
 
   public async connect() {
-    const resp = await this.getProvider().connect();
+    const resp = await (await this.getProvider()).connect();
     new Store().setAddress(resp.publicKey.toString());
 
     return resp.publicKey.toString();
@@ -65,9 +65,9 @@ export class PhantomConnector extends BaseConnector implements Connector {
   ) {
     const transaction = await this.constructTransaction(type, params);
 
-    const signedTransaction = await this.getProvider().signTransaction(
-      transaction
-    );
+    const signedTransaction = await (
+      await this.getProvider()
+    ).signTransaction(transaction);
 
     return base58.encode(signedTransaction.serialize());
   }

@@ -1,6 +1,9 @@
-import { Buffer } from "buffer";
+// import { Buffer } from "buffer";
 
 export const polyfill = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (typeof window !== "undefined" && !window.Buffer) window.Buffer = Buffer;
+  // // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  // if (window && typeof window !== "undefined" && !window.Buffer)
+  //   window.Buffer = Buffer;
+
+  console.log("ran polyfill");
 };

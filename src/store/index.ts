@@ -1,4 +1,4 @@
-import { proxy } from "valtio";
+import { proxy } from "valtio/vanilla";
 import { Connector } from "../connectors/base";
 import { ClusterName } from "../defaults/clusters";
 

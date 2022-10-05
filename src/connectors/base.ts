@@ -31,9 +31,9 @@ export interface Connector {
 }
 
 export class BaseConnector {
-  protected getProvider(): {
+  protected getProvider(): Promise<{
     request: (args: { method: any; params: any }) => any;
-  } | null {
+  }> | null {
     return null;
   }
 
@@ -101,7 +101,7 @@ export class BaseConnector {
     method: Method,
     params: RequestMethods[Method]["params"]
   ): Promise<RequestMethods[Method]["returns"]> {
-    return this.getProvider()?.request({ method, params });
+    return (await this.getProvider())?.request({ method, params });
   }
 
   public async subscribeToCluster<

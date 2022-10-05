@@ -7,6 +7,9 @@ const isExternal = (id: string) => !id.startsWith(".") && !path.isAbsolute(id);
 
 export default defineConfig(() => ({
   esbuild: {},
+  define: {
+    global: {},
+  },
   build: {
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
