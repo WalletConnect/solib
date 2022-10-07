@@ -30,6 +30,9 @@ declare global {
   }
 }
 export class PhantomConnector extends BaseConnector implements Connector {
+  public geConnectortName(): string {
+    return "phantom";
+  }
   protected getProvider() {
     if (typeof window !== "undefined" && window.phantom) {
       return Promise.resolve(window.phantom.solana);

@@ -1,5 +1,4 @@
 import { proxy } from "valtio/vanilla";
-import { solanaClusters } from "../defaults/clusters";
 import Store from "../store";
 import { ClusterSubscribeRequestMethods } from "../types/requests";
 import { waitForOpenConnection } from "./websocket";
@@ -13,7 +12,7 @@ export const ClusterFactory = (function () {
   let subIdToReqId: Record<number, number> = proxy({});
   async function setSocket() {
     const cluster = new Store().getCluster();
-    const endpoint = solanaClusters[cluster].endpoint;
+    const endpoint = cluster.endpoint;
     socket = new WebSocket(endpoint.replace("http", "ws"));
     await waitForOpenConnection(socket!);
 

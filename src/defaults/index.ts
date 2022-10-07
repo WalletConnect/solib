@@ -1,1 +1,6 @@
-export { getDefaultConnectors } from "./connectors";
+export {
+  mainnetBetaProjectSerum,
+  mainnetBetaWalletConnect,
+  devnet,
+  testnet,
+} from "./clusters";

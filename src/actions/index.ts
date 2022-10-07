@@ -1,4 +1,11 @@
-export { connect, init, signMessage, getBalance, getAddress } from "./main";
+export {
+  connect,
+  init,
+  signMessage,
+  getBalance,
+  getAddress,
+  watchAddress,
+} from "./main";
 
 export {
   signAndSendTransaction,

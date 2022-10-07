@@ -1,10 +1,12 @@
 import UniversalProvider from "@walletconnect/universal-provider";
 import QRCodeModal from "@walletconnect/qrcode-modal";
 import { BaseConnector, Connector } from "./base";
-import { solanaClusters } from "../defaults/clusters";
 import { TransactionArgs, TransactionType } from "../types/requests";
+import Store from "../store";
+import base58 from "bs58";
+import { PublicKey } from "@solana/web3.js";
 
-const DEFAULT_LOGGER = "debug";
+const DEFAULT_LOGGER = "error";
 
 export interface WalletConnectAppMetadata {
   name: string;
@@ -13,55 +15,120 @@ export interface WalletConnectAppMetadata {
   icons: Array<string>;
 }
 
+const UniversalProviderFactory = (function () {
+  let provider: UniversalProvider | undefined;
+  let relayerRegion: string | undefined;
+  let projectId: string | undefined;
+  let metadata: WalletConnectAppMetadata | undefined;
+
+  async function initProvider() {
+    provider = await UniversalProvider.init({
+      logger: DEFAULT_LOGGER,
+      relayUrl: relayerRegion,
+      projectId: projectId,
+      metadata: metadata,
+    });
+
+    provider.on("display_uri", (uri: string) => {
+      QRCodeModal.open(uri, (data: any) => {
+        console.log("Opened QRCodeModal", data);
+      });
+    });
+
+    // Subscribe to session ping
+    provider.on("session_ping", ({ id, topic }: any) => {
+      console.log(id, topic);
+    });
+
+    // Subscribe to session event
+    provider.on("session_event", ({ event, chainId }: any) => {
+      console.log(event, chainId);
+    });
+
+    // Subscribe to session update
+    provider.on("session_update", ({ topic, params }: any) => {
+      console.log(topic, params);
+    });
+
+    // Subscribe to session delete
+    provider.on("session_delete", ({ id, topic }: any) => {
+      console.log(id, topic);
+    });
+  }
+
+  return {
+    setSettings: function (
+      _projectId: string,
+      _relayerRegion: string,
+      _metadata: WalletConnectAppMetadata
+    ) {
+      relayerRegion = _relayerRegion;
+      projectId = _projectId;
+      metadata = _metadata;
+    },
+    getProvider: async function () {
+      if (!provider) {
+        await initProvider();
+      }
+      return provider!;
+    },
+  };
+})();
+
 export class WalletConnectConnector extends BaseConnector implements Connector {
   provider: UniversalProvider | undefined;
   projectId: string;
   metadata: WalletConnectAppMetadata;
   relayerRegion: string;
-  public isAvailable() {
-    return true;
-  }
 
   constructor(
     projectId: string,
     relayerRegion: string,
-    metadata: WalletConnectAppMetadata
+    metadata: WalletConnectAppMetadata,
+    autoconnect?: boolean
   ) {
     super();
     this.projectId = projectId;
     this.relayerRegion = relayerRegion;
     this.metadata = metadata;
+    UniversalProviderFactory.setSettings(projectId, relayerRegion, metadata);
+    if (autoconnect) {
+      console.log("WC constructor > autoconnect true");
+      UniversalProviderFactory.getProvider().then((provider) => {
+        console.log("Provider state", { provider });
+        if (
+          provider.session.namespaces &&
+          provider.session.namespaces["solana"]?.accounts?.length
+        ) {
+          const defaultAccount =
+            provider.session.namespaces["solana"].accounts[0];
+          console.log("Found accounts", defaultAccount);
+          const address = defaultAccount.split(":")[2];
+          new Store().setAddress(address);
+        }
+      });
+    }
   }
 
-  private async initProvider() {
-    // if (window) window.global = window;
-    this.provider = await UniversalProvider.init({
-      logger: DEFAULT_LOGGER,
-      relayUrl: this.relayerRegion,
-      projectId: this.projectId,
-      metadata: this.metadata,
-    });
+  public getConnectorName(): string {
+    return "walletconnect";
+  }
 
-    this.provider.on("display_uri", ({ uri }: { uri: string }) => {
-      QRCodeModal.open(uri, (data: any) => {
-        console.log("Opened QRCodeModal", data);
-      });
-    });
+  public isAvailable() {
+    return true;
   }
 
   protected async getProvider() {
-    if (!this.provider) {
-      await this.initProvider();
-    }
-
-    return Promise.resolve(this.provider!);
+    return await UniversalProviderFactory.getProvider();
   }
 
   public async signMessage(message: string) {
-    const encodedMessage = new TextEncoder().encode(message);
-    const signedMessage = await this.request("signMessage", {
-      message: encodedMessage,
-      format: "utf8",
+    const address = new Store().getAddress();
+    if (!address) throw new Error("No signer connected");
+
+    const signedMessage = await this.request("solana_signMessage", {
+      message: base58.encode(new TextEncoder().encode(message)),
+      pubkey: address,
     });
     const { signature } = signedMessage;
 
@@ -73,10 +140,36 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     params: TransactionArgs[Type]
   ) {
     const transaction = await this.constructTransaction(type, params);
+    console.log("Made transaction", transaction);
 
-    console.log({ transaction });
+    const transactionParams = {
+      feePayer: transaction.feePayer?.toBase58()!,
+      instructions: transaction.instructions.map((instruction) => ({
+        data: base58.encode(instruction.data),
+        keys: instruction.keys.map((key) => ({
+          isWritable: key.isWritable,
+          isSigner: key.isSigner,
+          pubkey: key.pubkey.toBase58(),
+        })),
+        programId: instruction.programId.toBase58(),
+      })),
+      recentBlockhash: transaction.recentBlockhash!,
+    };
 
-    return "";
+    console.log("Formatted transaction", transactionParams);
+
+    const res = await this.request("solana_signTransaction", transactionParams);
+    transaction.addSignature(
+      new PublicKey(new Store().getAddress()!),
+      Buffer.from(base58.decode(res.signature))
+    );
+
+    const validSig = transaction.verifySignatures();
+
+    if (!validSig) throw new Error("Signature invalid.");
+
+    console.log({ res, validSig });
+    return base58.encode(transaction.serialize());
   }
 
   public async signAndSendTransaction<Type extends TransactionType>(
@@ -87,26 +180,35 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
   }
 
   public async connect() {
+    const chosenCluster = new Store().getCluster();
+    const clusterId = `solana:${chosenCluster.id}`;
     const solanaNamespace = {
       solana: {
-        chains: Object.keys(solanaClusters).map(
-          (clusterId) => `solana:${clusterId}`
-        ),
-        methods: ["signMessage", "signTransaction"],
+        chains: [clusterId],
+        methods: ["solana_signMessage", "solana_signTransaction"],
         events: [],
-        rpcMap: Object.fromEntries(
-          Object.entries(solanaClusters).map(([clusterId, clusterVal]) => {
-            return [`solana:${clusterId}`, clusterVal.endpoint];
-          })
-        ),
+        rpcMap: {
+          [clusterId]: chosenCluster.endpoint,
+        },
       },
     };
-    const provider = await this.getProvider();
-    await provider.connect({
+
+    const provider = await UniversalProviderFactory.getProvider();
+    console.log({ solanaNamespace, provider, thing: (provider as any).target });
+
+    const rs = await provider.connect({
       pairingTopic: undefined,
       namespaces: solanaNamespace,
     });
 
-    return "";
+    if (!rs) throw new Error("Failed connection.");
+    const address = rs!.namespaces.solana.accounts[0].split(":")[2];
+
+    QRCodeModal.close();
+
+    new Store().setAddress(address);
+
+    console.log({ rs });
+    return address;
   }
 }

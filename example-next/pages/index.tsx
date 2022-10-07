@@ -4,10 +4,11 @@ import {
   signMessage,
   getBalance,
   signAndSendTransaction,
+  watchAddress,
   watchTransaction,
   fetchName,
 } from "solib";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Badge,
   Button,
@@ -31,18 +32,29 @@ const Home: NextPage = () => {
   const [message, setMessage] = useState<string | undefined>("");
   const [toAddress, setToAddress] = useState<string | undefined>("");
   const [amount, setAmount] = useState<number>(0);
-  const onClick = useCallback(() => {
-    connect()
-      .then((publicKey) => {
-        setAddress(publicKey!);
-        return publicKey;
-      })
-      .then((publicKey) => {
-        getBalance().then((value) => setBalance(value.toString()));
-        fetchName({ address: publicKey! }).then((name) => {
-          setName(name || publicKey!);
-        });
+
+  useEffect(() => {
+    watchAddress((address) => {
+      console.log("Got address", address);
+      setAddress(address);
+    });
+  }, [setAddress]);
+
+  useEffect(() => {
+    if (address) {
+      getBalance().then((value) =>
+        setBalance((value && value.toString()) || "0")
+      );
+      fetchName({ address }).then((name) => {
+        setName(name || address!);
       });
+    }
+  }, [address]);
+
+  const onClick = useCallback(() => {
+    connect().then((publicKey) => {
+      setAddress(publicKey!);
+    });
   }, []);
 
   const onSign = useCallback((message: string | undefined) => {

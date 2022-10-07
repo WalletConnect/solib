@@ -1,5 +1,4 @@
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-import { solanaClusters } from "../defaults/clusters";
 import Store from "../store";
 import {
   ClusterRequestMethods,
@@ -12,6 +11,7 @@ import { ClusterFactory } from "../utils/clusterFactory";
 
 export interface Connector {
   isAvailable: () => boolean;
+  getConnectorName: () => string;
   connect: () => Promise<string>;
   signMessage: (message: string) => any;
   signTransaction: <Type extends TransactionType>(
@@ -31,6 +31,9 @@ export interface Connector {
 }
 
 export class BaseConnector {
+  public getConnectorName() {
+    return "base";
+  }
   protected getProvider(): Promise<{
     request: (args: { method: any; params: any }) => any;
   }> | null {
@@ -123,7 +126,7 @@ export class BaseConnector {
     params: ClusterRequestMethods[Method]["params"]
   ): Promise<ClusterRequestMethods[Method]["returns"]> {
     const cluster = new Store().getCluster();
-    const endpoint = solanaClusters[cluster].endpoint;
+    const endpoint = cluster.endpoint;
     const res: { result: ClusterRequestMethods[Method]["returns"] } =
       await fetch(endpoint, {
         method: "post",

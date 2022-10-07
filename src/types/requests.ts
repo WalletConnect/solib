@@ -32,7 +32,33 @@ export interface ClusterRequestMethods {
   };
 }
 
+export interface TransactionInstruction {
+  programId: string;
+  data: any;
+  keys: Array<{ isSigner: boolean; isWritable: boolean; pubkey: string }>;
+}
+
 export interface RequestMethods {
+  solana_signMessage: {
+    params: {
+      message: string;
+      pubkey: string;
+    };
+    returns: {
+      signature: string;
+    };
+  };
+  solana_signTransaction: {
+    params: {
+      feePayer: string;
+      instructions: TransactionInstruction[];
+      recentBlockhash: string;
+      signatures?: Array<{ pubkey: string; signature: string }>;
+    };
+    returns: {
+      signature: string;
+    };
+  };
   signMessage: {
     params: {
       message: Uint8Array;

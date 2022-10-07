@@ -1,15 +1,17 @@
-import { proxy } from "valtio/vanilla";
+import { proxy, subscribe } from "valtio/vanilla";
 import { Connector } from "../connectors/base";
-import { ClusterName } from "../defaults/clusters";
+import { Cluster } from "../types/cluster";
 
 export interface StoreConfig {
   connectors: Connector[];
-  chosenCluster: ClusterName;
+  chosenCluster: Cluster;
+  connectorId: string;
 }
 
 interface State {
   connectors: Connector[];
-  chosenCluster: ClusterName;
+  connectorId: string;
+  chosenCluster: Cluster;
   requestId: number;
   socket?: WebSocket;
   address?: string;
@@ -20,6 +22,9 @@ class Store {
   constructor(config?: StoreConfig) {
     if (!Store._store && config) {
       Store._store = proxy({ ...config, requestId: 0 });
+
+      // Calling this to trigger the error checking.
+      this.setConnectorId(config.connectorId);
     }
   }
 
@@ -45,8 +50,50 @@ class Store {
     return this.get("address");
   }
 
-  public setCluster(cluster: ClusterName) {
+  public setConnectorId(connectorId: string) {
+    const connectorNames = Store._store.connectors.map((connector) =>
+      connector.getConnectorName()
+    );
+    if (connectorNames.some((connectorName) => connectorName === connectorId)) {
+      this.set("connectorId", connectorId);
+    } else
+      throw new Error(`No connector with name ${connectorId} exists,
+       available options are: ${connectorNames.join(",")} `);
+  }
+
+  public getConnecterId() {
+    return this.get("connectorId");
+  }
+
+  public getActiveConnector() {
+    const connectors = Store._store.connectors;
+    const id = Store._store.connectorId;
+
+    const connector = connectors.find(
+      (connector) => connector.getConnectorName() === id
+    );
+
+    if (!connector) {
+      throw new Error("Invalid connector id configured");
+    }
+
+    return connector;
+  }
+
+  public setCluster(cluster: Cluster) {
     this.set("chosenCluster", cluster);
+  }
+
+  public watchAddress(callback: (address?: string) => void) {
+    const unsub = subscribe(Store._store, (ops) => {
+      const addressChangeOp = ops.find((op) => op[1].includes("address"));
+
+      if (addressChangeOp) {
+        callback(Store._store.address);
+      }
+    });
+
+    return unsub;
   }
 
   public getCluster() {
