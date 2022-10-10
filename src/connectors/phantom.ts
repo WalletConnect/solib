@@ -30,8 +30,12 @@ declare global {
   }
 }
 export class PhantomConnector extends BaseConnector implements Connector {
-  public geConnectortName(): string {
+  public static get connectorName() {
     return "phantom";
+  }
+
+  public geConnectortName(): string {
+    return PhantomConnector.connectorName;
   }
   protected getProvider() {
     if (typeof window !== "undefined" && window.phantom) {

@@ -19,6 +19,7 @@ const UniversalProviderFactory = (function () {
   let provider: UniversalProvider | undefined;
   let relayerRegion: string | undefined;
   let projectId: string | undefined;
+  let qrcode: boolean;
   let metadata: WalletConnectAppMetadata | undefined;
 
   async function initProvider() {
@@ -27,12 +28,6 @@ const UniversalProviderFactory = (function () {
       relayUrl: relayerRegion,
       projectId: projectId,
       metadata: metadata,
-    });
-
-    provider.on("display_uri", (uri: string) => {
-      QRCodeModal.open(uri, (data: any) => {
-        console.log("Opened QRCodeModal", data);
-      });
     });
 
     // Subscribe to session ping
@@ -60,11 +55,14 @@ const UniversalProviderFactory = (function () {
     setSettings: function (
       _projectId: string,
       _relayerRegion: string,
-      _metadata: WalletConnectAppMetadata
+      _metadata: WalletConnectAppMetadata,
+      _qrcode: boolean
     ) {
       relayerRegion = _relayerRegion;
       projectId = _projectId;
       metadata = _metadata;
+      qrcode = _qrcode;
+      console.log(qrcode);
     },
     getProvider: async function () {
       if (!provider) {
@@ -77,21 +75,21 @@ const UniversalProviderFactory = (function () {
 
 export class WalletConnectConnector extends BaseConnector implements Connector {
   provider: UniversalProvider | undefined;
-  projectId: string;
-  metadata: WalletConnectAppMetadata;
-  relayerRegion: string;
 
   constructor(
-    projectId: string,
-    relayerRegion: string,
-    metadata: WalletConnectAppMetadata,
+    protected projectId: string,
+    protected relayerRegion: string,
+    protected metadata: WalletConnectAppMetadata,
+    protected qrcode?: boolean,
     autoconnect?: boolean
   ) {
     super();
-    this.projectId = projectId;
-    this.relayerRegion = relayerRegion;
-    this.metadata = metadata;
-    UniversalProviderFactory.setSettings(projectId, relayerRegion, metadata);
+    UniversalProviderFactory.setSettings(
+      projectId,
+      relayerRegion,
+      metadata,
+      qrcode || false
+    );
     if (autoconnect) {
       console.log("WC constructor > autoconnect true");
       UniversalProviderFactory.getProvider().then((provider) => {
@@ -110,8 +108,12 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     }
   }
 
-  public getConnectorName(): string {
+  public static get connectorName() {
     return "walletconnect";
+  }
+
+  public getConnectorName(): string {
+    return WalletConnectConnector.connectorName;
   }
 
   public isAvailable() {
@@ -179,6 +181,16 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     return await this.sendTransaction(await this.signTransaction(type, params));
   }
 
+  /**
+   * Connect to user's wallet.
+   *
+   * If `WalletConnectConnector` was configured with `qrcode = true`, this will
+   * open a QRCodeModal, where the user will scan the qrcode and then this
+   * function will resolve/return the address of the wallet.
+   *
+   * If `qrcode = false`, this will return the pairing URI used to generate the
+   * QRCode.
+   */
   public async connect() {
     const chosenCluster = new Store().getCluster();
     const clusterId = `solana:${chosenCluster.id}`;
@@ -194,21 +206,37 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     };
 
     const provider = await UniversalProviderFactory.getProvider();
-    console.log({ solanaNamespace, provider, thing: (provider as any).target });
 
-    const rs = await provider.connect({
-      pairingTopic: undefined,
-      namespaces: solanaNamespace,
+    return new Promise<string>(async (resolve) => {
+      provider.on("display_uri", (uri: string) => {
+        if (this.qrcode) {
+          QRCodeModal.open(uri, (data: any) => {
+            console.log("Opened QRCodeModal", data);
+          });
+        } else resolve(uri);
+      });
+
+      console.log({
+        solanaNamespace,
+        provider,
+        thing: (provider as any).target,
+      });
+
+      const rs = await provider.connect({
+        pairingTopic: undefined,
+        namespaces: solanaNamespace,
+      });
+
+      if (this.qrcode) {
+        if (!rs) throw new Error("Failed connection.");
+        const address = rs.namespaces.solana.accounts[0].split(":")[2];
+
+        new Store().setAddress(address);
+
+        console.log({ rs });
+
+        resolve(address);
+      }
     });
-
-    if (!rs) throw new Error("Failed connection.");
-    const address = rs!.namespaces.solana.accounts[0].split(":")[2];
-
-    QRCodeModal.close();
-
-    new Store().setAddress(address);
-
-    console.log({ rs });
-    return address;
   }
 }
