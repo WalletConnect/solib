@@ -53,7 +53,7 @@ const Home: NextPage = () => {
 
   const onClick = useCallback(() => {
     connect().then((publicKey) => {
-      setAddress(publicKey!);
+      console.log({ publicKey });
     });
   }, []);
 
@@ -91,7 +91,7 @@ const Home: NextPage = () => {
         });
       }
     },
-    []
+    [toast]
   );
 
   return (

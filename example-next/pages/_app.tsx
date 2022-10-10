@@ -9,7 +9,7 @@ import {
 import { ColorModeProvider, ChakraProvider } from "@chakra-ui/react";
 
 init({
-  connectorId: "walletconnect",
+  connectorId: WalletConnectConnector.connectorName,
   connectors: [
     new PhantomConnector(),
     new WalletConnectConnector(
@@ -21,6 +21,7 @@ init({
         icons: ["https://avatars.githubusercontent.com/u/37784886"],
         url: "http://localhost:3000",
       },
+      true,
       true
     ),
   ],
