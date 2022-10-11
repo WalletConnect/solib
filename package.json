@@ -13,7 +13,7 @@
     "dev": "vite",
     "build": "tsc && vite build && tsc --emitDeclarationOnly",
     "preview": "vite preview",
-    "lint": "eslint .",
+    "lint": "eslint */**/*.ts",
     "prettier": "prettier --check .",
     "format": "prettier --check . -w"
   },
@@ -30,8 +30,12 @@
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.1",
+    "@typescript-eslint/eslint-plugin": "^5.40.0",
+    "@typescript-eslint/parser": "^5.40.0",
     "better-sqlite3": "^7.6.2",
     "eslint": "^8.25.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.7.1",
     "react": "^18.2.0",
     "tslib": "^2.4.0",
