@@ -21,7 +21,7 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'yarn.lock'
       - name: install
-        run: yarn ci
+        run: yarn 
       - name: build
         run: yarn build
         env:
@@ -44,6 +44,6 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'yarn.lock'
       - name: install
-        run: yarn ci
+        run: yarn 
       - name: check
         run: yarn ${{ matrix.style-command }}
