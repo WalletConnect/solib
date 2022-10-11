@@ -17,7 +17,7 @@
   "plugins": ["@typescript-eslint"],
   "extends": ["eslint:all", "plugin:@typescript-eslint/all", "prettier"],
   "rules": {
-		"no-console": 0,
+    "no-console": 0,
     "sort-imports": "off",
     "one-var": "off",
     "sort-keys": "off",
@@ -39,7 +39,7 @@
     "newline-before-return": "error",
     "camelcase": "off",
     "class-methods-use-this": "off",
-		"prefer-destructuring": 0,
+    "prefer-destructuring": 0,
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/explicit-function-return-type": "off",

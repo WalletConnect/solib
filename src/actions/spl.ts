@@ -22,10 +22,10 @@
  * * getAllDomains returns max 5 domains
  */
 
-import type { Connection} from '@solana/web3.js';
+import type { Connection } from '@solana/web3.js'
 import { PublicKey } from '@solana/web3.js'
 import { sha256 } from '@ethersproject/sha2'
-import type { Schema} from 'borsh';
+import type { Schema } from 'borsh'
 import { deserializeUnchecked, deserialize } from 'borsh'
 import BN from 'bn.js'
 
@@ -104,11 +104,9 @@ class FavouriteDomain {
    */
   static async retrieve(connection: Connection, key: PublicKey) {
     const accountInfo = await connection.getAccountInfo(key)
-    if (!accountInfo || !accountInfo.data) 
-      throw new Error('Favourite domain not found')
-    
-    
-return this.deserialize(accountInfo.data)
+    if (!accountInfo || !accountInfo.data) throw new Error('Favourite domain not found')
+
+    return this.deserialize(accountInfo.data)
   }
 
   /**
@@ -153,9 +151,7 @@ class NameRegistryState {
 
   public static async retrieve(connection: Connection, nameAccountKey: PublicKey) {
     const nameAccount = await connection.getAccountInfo(nameAccountKey)
-    if (!nameAccount) 
-      throw new Error('Invalid name account provided')
-    
+    if (!nameAccount) throw new Error('Invalid name account provided')
 
     const res: NameRegistryState = deserializeUnchecked(
       this.schema,
@@ -174,28 +170,27 @@ class NameRegistryState {
       if (!data) return undefined
       const res: NameRegistryState = deserializeUnchecked(this.schema, NameRegistryState, data)
       res.data = data.slice(this.HEADER_LEN)
-      
-return res
+
+      return res
     }
-    
-return nameAccounts.map(e => fn(e?.data))
+
+    return nameAccounts.map(e => fn(e?.data))
   }
 
   public static async retrieveBatch(connection: Connection, nameAccountKeys: PublicKey[]) {
     const result: (NameRegistryState | undefined)[] = []
-    while (nameAccountKeys.length > 0) 
+    while (nameAccountKeys.length > 0)
       result.push(...(await this._retrieveBatch(connection, nameAccountKeys.splice(0, 100))))
-    
-    
-return result
+
+    return result
   }
 }
 
 async function getHashedName(name: string): Promise<Buffer> {
   const input = HASH_PREFIX + name
   const str = sha256(Buffer.from(input, 'utf8')).slice(2)
-  
-return Buffer.from(str, 'hex')
+
+  return Buffer.from(str, 'hex')
 }
 
 async function getNameAccountKey(
@@ -204,19 +199,15 @@ async function getNameAccountKey(
   nameParent?: PublicKey
 ): Promise<PublicKey> {
   const seeds = [hashed_name]
-  if (nameClass) 
-    seeds.push(nameClass.toBuffer())
-   else 
-    seeds.push(Buffer.alloc(32))
-  
-  if (nameParent) 
-    seeds.push(nameParent.toBuffer())
-   else 
-    seeds.push(Buffer.alloc(32))
-  
+  if (nameClass) seeds.push(nameClass.toBuffer())
+  else seeds.push(Buffer.alloc(32))
+
+  if (nameParent) seeds.push(nameParent.toBuffer())
+  else seeds.push(Buffer.alloc(32))
+
   const [nameAccountKey] = await PublicKey.findProgramAddress(seeds, NAME_PROGRAM_ID)
-  
-return nameAccountKey
+
+  return nameAccountKey
 }
 
 export async function performReverseLookup(
@@ -227,12 +218,11 @@ export async function performReverseLookup(
   const reverseLookupAccount = await getNameAccountKey(hashedReverseLookup, REVERSE_LOOKUP_CLASS)
 
   const { registry } = await NameRegistryState.retrieve(connection, reverseLookupAccount)
-  if (!registry.data) 
-    throw 'Could not retrieve name data'
-  
+  if (!registry.data) throw 'Could not retrieve name data'
+
   const nameLength = new BN(registry.data.slice(0, 4), 'le').toNumber()
-  
-return `${registry.data.slice(4, 4 + nameLength).toString()  }.sol`
+
+  return `${registry.data.slice(4, 4 + nameLength).toString()}.sol`
 }
 
 /**
