@@ -3,14 +3,30 @@ import { Connector } from "../connectors/base";
 import { Cluster } from "../types/cluster";
 
 export interface StoreConfig {
+  /**
+   * List of connectors to be supported. a specific connector is chosen using
+   * `connectorName`. Eg: `[new PhantomConnector()]`
+   */
   connectors: Connector[];
+  /**
+   *  Name of the chosen connector from the `connectors` supplied.
+   *  Can be accessed by statically getting the connector name,
+   *  E.g: `WalletConnectConnector.connectorName`
+   */
+  connectorName: string;
+  /**
+   * Chosen cluster/network to communicate with. Options are exported. Eg:
+   * `mainnetBetaWalletConnect` which will communicate with the Solana mainnet
+   * using WalletConnect's RPC
+   */
   chosenCluster: Cluster;
-  connectorId: string;
 }
 
+/**
+ */
 interface State {
   connectors: Connector[];
-  connectorId: string;
+  connectorName: string;
   chosenCluster: Cluster;
   requestId: number;
   socket?: WebSocket;
@@ -24,50 +40,50 @@ class Store {
       Store._store = proxy({ ...config, requestId: 0 });
 
       // Calling this to trigger the error checking.
-      this.setConnectorId(config.connectorId);
+      Store.setConnectorId(config.connectorName);
     }
   }
 
-  private set<K extends keyof State>(key: K, value: State[K]) {
+  private static set<K extends keyof State>(key: K, value: State[K]) {
     Store._store[key] = value;
   }
 
-  private get<K extends keyof State>(key: K): State[K] {
+  private static get<K extends keyof State>(key: K): State[K] {
     return Store._store[key];
   }
 
-  public getNewRequestId() {
+  public static getNewRequestId() {
     const curId = Store._store["requestId"];
     Store._store["requestId"] = curId + 1;
     return Store._store["requestId"];
   }
 
-  public setAddress(address: string) {
-    this.set("address", address);
+  public static setAddress(address: string) {
+    Store.set("address", address);
   }
 
-  public getAddress() {
-    return this.get("address");
+  public static getAddress() {
+    return Store.get("address");
   }
 
-  public setConnectorId(connectorId: string) {
+  public static setConnectorId(connectorId: string) {
     const connectorNames = Store._store.connectors.map((connector) =>
       connector.getConnectorName()
     );
     if (connectorNames.some((connectorName) => connectorName === connectorId)) {
-      this.set("connectorId", connectorId);
+      Store.set("connectorName", connectorId);
     } else
       throw new Error(`No connector with name ${connectorId} exists,
        available options are: ${connectorNames.join(",")} `);
   }
 
-  public getConnecterId() {
-    return this.get("connectorId");
+  public static getConnecterId() {
+    return Store.get("connectorName");
   }
 
-  public getActiveConnector() {
+  public static getActiveConnector() {
     const connectors = Store._store.connectors;
-    const id = Store._store.connectorId;
+    const id = Store._store.connectorName;
 
     const connector = connectors.find(
       (connector) => connector.getConnectorName() === id
@@ -80,11 +96,11 @@ class Store {
     return connector;
   }
 
-  public setCluster(cluster: Cluster) {
-    this.set("chosenCluster", cluster);
+  public static setCluster(cluster: Cluster) {
+    Store.set("chosenCluster", cluster);
   }
 
-  public watchAddress(callback: (address?: string) => void) {
+  public static watchAddress(callback: (address?: string) => void) {
     const unsub = subscribe(Store._store, (ops) => {
       const addressChangeOp = ops.find((op) => op[1].includes("address"));
 
@@ -96,19 +112,19 @@ class Store {
     return unsub;
   }
 
-  public getCluster() {
-    return this.get("chosenCluster");
+  public static getCluster() {
+    return Store.get("chosenCluster");
   }
 
-  public getSocket() {
-    return this.get("socket");
+  public static getSocket() {
+    return Store.get("socket");
   }
 
-  public setSocket(socket: WebSocket) {
-    return this.set("socket", socket);
+  public static setSocket(socket: WebSocket) {
+    return Store.set("socket", socket);
   }
 
-  public getConnectors() {
+  public static getConnectors() {
     return [...Store._store.connectors];
   }
 }
