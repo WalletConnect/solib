@@ -13,7 +13,7 @@
     "dev": "vite",
     "build": "tsc && vite build && tsc --emitDeclarationOnly",
     "preview": "vite preview",
-    "lint": "eslint */**/*.ts",
+    "lint": "eslint src/**/*.ts",
     "prettier": "prettier --check .",
     "format": "prettier --check . -w"
   },

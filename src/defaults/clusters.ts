@@ -6,11 +6,13 @@ export const mainnetBetaProjectSerum: Cluster = {
   endpoint: `https://solana-api.projectserum.com`
 }
 
-export const mainnetBetaWalletConnect: (projectId: string) => Cluster = projectId => ({
-  name: 'mainnetBeta',
-  id: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ',
-  endpoint: `https://rpc.walletconnect.com/v1?chainId=solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ&projectId=${projectId}`
-})
+export function mainnetBetaWalletConnect(projectId: string) {
+  return {
+    name: 'mainnetBeta',
+    id: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ',
+    endpoint: `https://rpc.walletconnect.com/v1?chainId=solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ&projectId=${projectId}`
+  }
+}
 
 export const testnet: Cluster = {
   name: 'testnet',

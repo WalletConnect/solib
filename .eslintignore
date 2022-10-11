@@ -1,0 +1,3 @@
+src/actions/spl.ts
+node_modules/**/*
+dist/**/*

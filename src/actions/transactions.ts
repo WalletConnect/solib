@@ -27,7 +27,7 @@ export async function signAndSendTransaction<Type extends TransactionType>(
 
 export async function watchTransaction(
   transactionSignature: string,
-  callback: (params: any) => void
+  callback: (params: unknown) => void
 ) {
   return withConnector(async connector => {
     return connector.watchTransaction(transactionSignature, callback)

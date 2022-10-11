@@ -8,6 +8,20 @@ export interface FetchNameArgs {
 
 export type FetchNameResult = string | null
 
+async function getSolDomainsFromPublicKey(
+  connection: Connection,
+  wallet: PublicKey
+): Promise<string[]> {
+  const allDomainKeys = await getAllDomains(connection, wallet)
+  const allDomainNames = await Promise.all(
+    allDomainKeys.map(async (key: PublicKey) => {
+      return performReverseLookup(connection, key)
+    })
+  )
+
+  return allDomainNames
+}
+
 /**
  * Retrieves a domain name to display for a user if any
  * First it attempts to get the favorite domain.
@@ -24,23 +38,11 @@ export async function fetchName(args: FetchNameArgs): Promise<FetchNameResult> {
 
   try {
     return (await getFavoriteDomain(connection, address)).reverse
-  } catch (e) {}
+  } catch (e) {
+    console.log({ e })
+  }
 
   const otherDomains = await getSolDomainsFromPublicKey(connection, address)
 
   return otherDomains.length > 0 ? otherDomains[0] : null
-}
-
-async function getSolDomainsFromPublicKey(
-  connection: Connection,
-  wallet: PublicKey
-): Promise<string[]> {
-  const allDomainKeys = await getAllDomains(connection, wallet)
-  const allDomainNames = await Promise.all(
-    allDomainKeys.map(async (key: PublicKey) => {
-      return performReverseLookup(connection, key)
-    })
-  )
-  
-return allDomainNames
 }
