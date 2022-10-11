@@ -11,7 +11,7 @@ export const ClusterFactory = (function () {
   > = proxy({});
   let subIdToReqId: Record<number, number> = proxy({});
   async function setSocket() {
-    const cluster = new Store().getCluster();
+    const cluster = Store.getCluster();
     const endpoint = cluster.endpoint;
     socket = new WebSocket(endpoint.replace("http", "ws"));
     await waitForOpenConnection(socket!);
@@ -42,7 +42,7 @@ export const ClusterFactory = (function () {
     callback: (params: any) => void
   ) {
     if (!socket) await setSocket();
-    const id = new Store().getNewRequestId();
+    const id = Store.getNewRequestId();
     socket!.send(
       JSON.stringify({
         method,
@@ -70,7 +70,7 @@ export const ClusterFactory = (function () {
         method: unsubscribeMethod,
         params: [subscriptionId],
         jsonrpc: "2.0",
-        id: new Store().getNewRequestId(),
+        id: Store.getNewRequestId(),
       })
     );
   }
