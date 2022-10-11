@@ -34,6 +34,7 @@ const Home: NextPage = () => {
   const [amount, setAmount] = useState<number>(0)
 
   useEffect(() => {
+    console.log('ya hey')
     watchAddress(address => {
       console.log('Got address', address)
       setAddress(address)
@@ -57,8 +58,8 @@ const Home: NextPage = () => {
 
   const onSign = useCallback((message: string | undefined) => {
     if (message) {
-      signMessage(message).then(({ signature }) => {
-        setSignature(signature)
+      signMessage(message).then(signature => {
+        setSignature(signature!)
       })
     }
   }, [])
