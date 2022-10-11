@@ -1,2 +1,2 @@
-export { PhantomConnector } from "./phantom";
-export { WalletConnectConnector } from "./walletconnect";
+export { PhantomConnector } from './phantom'
+export { WalletConnectConnector } from './walletconnect'

@@ -5,5 +5,5 @@ export const polyfill = () => {
   // if (window && typeof window !== "undefined" && !window.Buffer)
   //   window.Buffer = Buffer;
 
-  console.log("ran polyfill");
-};
+  console.log('ran polyfill')
+}

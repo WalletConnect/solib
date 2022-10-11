@@ -5,6 +5,7 @@ Solana friendly API
 # Current Capabilities
 
 ## API
+
 - Connect Wallet:
   - Phantom
 - Get balance
@@ -15,6 +16,7 @@ Solana friendly API
 - Watch Transactions
 
 ## Internals
+
 - Generic transaction construction
 - Using cluster `sendTransaction` to avoid depending on aa wallet's
   implementation, only having to use their `signMessage` function
@@ -35,6 +37,7 @@ changes. TODO: Will look into making this better.
 # Folders
 
 ## Example
+
 Example app written in react, for testing
 
 ## Src
@@ -50,11 +53,11 @@ Actual source code.
 - defaults: This is where default things will live, like the clusters we have
   configured
 - store: A rudimentary store used for storing address, chosen cluster, etc
-- types: Self explanatory. Not *all* types need to live here, however.
+- types: Self explanatory. Not _all_ types need to live here, however.
 - utils: Self explanatory.
 
-
 # Resources:
+
 - [Web3Solana API Introduction](https://docs.solana.com/developing/clients/javascript-api)
 - [Solana JSONRPC API](https://docs.solana.com/developing/clients/jsonrpc-api)
 - [Solana Faucet for dev](https://solfaucet.com/)

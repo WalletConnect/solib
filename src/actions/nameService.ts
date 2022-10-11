@@ -1,12 +1,12 @@
-import { Connection, PublicKey } from "@solana/web3.js";
-import { mainnetBetaProjectSerum } from "../defaults/clusters";
-import { getFavoriteDomain, getAllDomains, performReverseLookup } from "./spl";
+import { Connection, PublicKey } from '@solana/web3.js'
+import { mainnetBetaProjectSerum } from '../defaults/clusters'
+import { getFavoriteDomain, getAllDomains, performReverseLookup } from './spl'
 
 export type FetchNameArgs = {
-  address: string;
-};
+  address: string
+}
 
-export type FetchNameResult = string | null;
+export type FetchNameResult = string | null
 
 /**
  * Retrieves a domain name to display for a user if any
@@ -19,30 +19,27 @@ export type FetchNameResult = string | null;
  * @returns
  */
 export async function fetchName(args: FetchNameArgs): Promise<FetchNameResult> {
-  const connection = new Connection(
-    mainnetBetaProjectSerum.endpoint,
-    "confirmed"
-  );
-  const address = new PublicKey(args.address);
+  const connection = new Connection(mainnetBetaProjectSerum.endpoint, 'confirmed')
+  const address = new PublicKey(args.address)
 
   try {
-    return (await getFavoriteDomain(connection, address)).reverse;
+    return (await getFavoriteDomain(connection, address)).reverse
   } catch (e) {}
 
-  const otherDomains = await getSolDomainsFromPublicKey(connection, address);
+  const otherDomains = await getSolDomainsFromPublicKey(connection, address)
 
-  return otherDomains.length > 0 ? otherDomains[0] : null;
+  return otherDomains.length > 0 ? otherDomains[0] : null
 }
 
 async function getSolDomainsFromPublicKey(
   connection: Connection,
   wallet: PublicKey
 ): Promise<string[]> {
-  const allDomainKeys = await getAllDomains(connection, wallet);
+  const allDomainKeys = await getAllDomains(connection, wallet)
   const allDomainNames = await Promise.all(
     allDomainKeys.map((key: PublicKey) => {
-      return performReverseLookup(connection, key);
+      return performReverseLookup(connection, key)
     })
-  );
-  return allDomainNames;
+  )
+  return allDomainNames
 }

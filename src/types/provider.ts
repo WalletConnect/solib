@@ -1,8 +1,8 @@
 export interface ConnectResponse {
-  publicKey: string;
+  publicKey: string
 }
 
 export interface Provider {
-  connect: () => Promise<ConnectResponse>;
-  disconnect: () => void;
+  connect: () => Promise<ConnectResponse>
+  disconnect: () => void
 }

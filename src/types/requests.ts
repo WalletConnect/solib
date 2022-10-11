@@ -1,90 +1,90 @@
 export interface ClusterSubscribeRequestMethods {
   signatureSubscribe: {
-    params: Array<string>;
-    returns: any;
-  };
+    params: Array<string>
+    returns: any
+  }
   signatureUnsubscribe: {
-    params: Array<number>;
-    returns: any;
-  };
+    params: Array<number>
+    returns: any
+  }
 }
 export interface ClusterRequestMethods {
   sendTransaction: {
     // Signed, serialized transaction
-    params: Array<string>;
-    returns: string;
-  };
+    params: Array<string>
+    returns: string
+  }
 
   getBalance: {
-    params: Array<string>;
+    params: Array<string>
     returns: {
-      value: number;
-    };
-  };
+      value: number
+    }
+  }
 
   getLatestBlockhash: {
-    params: [{ commitment?: string }];
+    params: [{ commitment?: string }]
     returns: {
       value: {
-        blockhash: string;
-      };
-    };
-  };
+        blockhash: string
+      }
+    }
+  }
 }
 
 export interface TransactionInstruction {
-  programId: string;
-  data: any;
-  keys: Array<{ isSigner: boolean; isWritable: boolean; pubkey: string }>;
+  programId: string
+  data: any
+  keys: Array<{ isSigner: boolean; isWritable: boolean; pubkey: string }>
 }
 
 export interface RequestMethods {
   solana_signMessage: {
     params: {
-      message: string;
-      pubkey: string;
-    };
+      message: string
+      pubkey: string
+    }
     returns: {
-      signature: string;
-    };
-  };
+      signature: string
+    }
+  }
   solana_signTransaction: {
     params: {
-      feePayer: string;
-      instructions: TransactionInstruction[];
-      recentBlockhash: string;
-      signatures?: Array<{ pubkey: string; signature: string }>;
-    };
+      feePayer: string
+      instructions: TransactionInstruction[]
+      recentBlockhash: string
+      signatures?: Array<{ pubkey: string; signature: string }>
+    }
     returns: {
-      signature: string;
-    };
-  };
+      signature: string
+    }
+  }
   signMessage: {
     params: {
-      message: Uint8Array;
-      format: string;
-    };
+      message: Uint8Array
+      format: string
+    }
     returns: {
-      signature: string;
-    };
-  };
+      signature: string
+    }
+  }
 
   signTransaction: {
     params: {
       // Serialized transaction
-      message: string;
-    };
+      message: string
+    }
     returns: {
-      serialize: () => string;
-    };
-  };
+      serialize: () => string
+    }
+  }
 }
 
 export type TransactionArgs = {
   transfer: {
-    to: string;
-    amountInLamports: number;
-    feePayer: "to" | "from";
-  };
-};
-export type TransactionType = keyof TransactionArgs;
+    to: string
+    amountInLamports: number
+    feePayer: 'to' | 'from'
+  }
+}
+export type TransactionType = keyof TransactionArgs

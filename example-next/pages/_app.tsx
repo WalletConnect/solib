@@ -1,32 +1,27 @@
-import "../styles/globals.css";
-import type { AppProps } from "next/app";
-import {
-  init,
-  mainnetBetaWalletConnect,
-  PhantomConnector,
-  WalletConnectConnector,
-} from "solib";
-import { ColorModeProvider, ChakraProvider } from "@chakra-ui/react";
+import '../styles/globals.css'
+import type { AppProps } from 'next/app'
+import { init, mainnetBetaWalletConnect, PhantomConnector, WalletConnectConnector } from 'solib'
+import { ColorModeProvider, ChakraProvider } from '@chakra-ui/react'
 
 init({
   connectorId: WalletConnectConnector.connectorName,
   connectors: [
     new PhantomConnector(),
     new WalletConnectConnector(
-      "e899c82be21d4acca2c8aec45e893598",
-      "wss://relay.walletconnect.com",
+      'e899c82be21d4acca2c8aec45e893598',
+      'wss://relay.walletconnect.com',
       {
-        description: "Test app for solib",
-        name: "Test Solib dApp",
-        icons: ["https://avatars.githubusercontent.com/u/37784886"],
-        url: "http://localhost:3000",
+        description: 'Test app for solib',
+        name: 'Test Solib dApp',
+        icons: ['https://avatars.githubusercontent.com/u/37784886'],
+        url: 'http://localhost:3000'
       },
       true,
       true
-    ),
+    )
   ],
-  chosenCluster: mainnetBetaWalletConnect("e899c82be21d4acca2c8aec45e893598"),
-});
+  chosenCluster: mainnetBetaWalletConnect('e899c82be21d4acca2c8aec45e893598')
+})
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -35,7 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
       </ColorModeProvider>
     </ChakraProvider>
-  );
+  )
 }
 
-export default MyApp;
+export default MyApp
