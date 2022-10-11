@@ -50,7 +50,7 @@ export class PhantomConnector extends BaseConnector implements Connector {
 
   public async connect() {
     const resp = await (await this.getProvider()).connect();
-    new Store().setAddress(resp.publicKey.toString());
+    Store.setAddress(resp.publicKey.toString());
 
     return resp.publicKey.toString();
   }

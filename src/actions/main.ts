@@ -26,9 +26,9 @@ export async function getBalance(requestedAddress?: string) {
 }
 
 export async function getAddress() {
-  return new Store().getAddress();
+  return Store.getAddress();
 }
 
 export async function watchAddress(callback: (address?: string) => void) {
-  return new Store().watchAddress(callback);
+  return Store.watchAddress(callback);
 }

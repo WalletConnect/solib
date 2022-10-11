@@ -46,7 +46,7 @@ export class BaseConnector {
   ) {
     const transaction = new Transaction();
 
-    const fromAddress = new Store().getAddress();
+    const fromAddress = Store.getAddress();
 
     if (!fromAddress) throw new Error("No address connected");
 
@@ -92,7 +92,7 @@ export class BaseConnector {
   }
 
   public async getBalance(requestedAddress?: string) {
-    const address = requestedAddress ?? new Store().getAddress();
+    const address = requestedAddress ?? Store.getAddress();
     if (!address) return null;
 
     const balance = await this.requestCluster("getBalance", [address]);
@@ -125,7 +125,7 @@ export class BaseConnector {
     method: Method,
     params: ClusterRequestMethods[Method]["params"]
   ): Promise<ClusterRequestMethods[Method]["returns"]> {
-    const cluster = new Store().getCluster();
+    const cluster = Store.getCluster();
     const endpoint = cluster.endpoint;
     const res: { result: ClusterRequestMethods[Method]["returns"] } =
       await fetch(endpoint, {
@@ -134,7 +134,7 @@ export class BaseConnector {
           method,
           params,
           jsonrpc: "2.0",
-          id: new Store().getNewRequestId(),
+          id: Store.getNewRequestId(),
         }),
         headers: {
           "Content-Type": "application/json",
