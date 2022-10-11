@@ -15,81 +15,97 @@ export interface WalletConnectAppMetadata {
   icons: Array<string>;
 }
 
-const UniversalProviderFactory = (function () {
-  let provider: UniversalProvider | undefined;
-  let relayerRegion: string | undefined;
-  let projectId: string | undefined;
-  let qrcode: boolean;
-  let metadata: WalletConnectAppMetadata | undefined;
+class UniversalProviderFactory {
+  static provider: UniversalProvider | undefined;
+  static relayerRegion: string | undefined;
+  static projectId: string | undefined;
+  static metadata: WalletConnectAppMetadata | undefined;
 
-  async function initProvider() {
-    provider = await UniversalProvider.init({
+  public static setSettings(params: {
+    projectId: string;
+    relayerRegion: string;
+    metadata: WalletConnectAppMetadata;
+    qrcode: boolean;
+  }) {
+    UniversalProviderFactory.relayerRegion = params.relayerRegion;
+    UniversalProviderFactory.projectId = params.projectId;
+    UniversalProviderFactory.metadata = params.metadata;
+  }
+
+  public static async getProvider() {
+    if (!UniversalProviderFactory.provider) {
+      await UniversalProviderFactory.init();
+    }
+    return UniversalProviderFactory.provider!;
+  }
+
+  public static async init() {
+    UniversalProviderFactory.provider = await UniversalProvider.init({
       logger: DEFAULT_LOGGER,
-      relayUrl: relayerRegion,
-      projectId: projectId,
-      metadata: metadata,
+      relayUrl: UniversalProviderFactory.relayerRegion,
+      projectId: UniversalProviderFactory.projectId,
+      metadata: UniversalProviderFactory.metadata,
     });
 
     // Subscribe to session ping
-    provider.on("session_ping", ({ id, topic }: any) => {
-      console.log(id, topic);
-    });
+    UniversalProviderFactory.provider.on(
+      "session_ping",
+      ({ id, topic }: any) => {
+        console.log(id, topic);
+      }
+    );
 
     // Subscribe to session event
-    provider.on("session_event", ({ event, chainId }: any) => {
-      console.log(event, chainId);
-    });
+    UniversalProviderFactory.provider.on(
+      "session_event",
+      ({ event, chainId }: any) => {
+        console.log(event, chainId);
+      }
+    );
 
     // Subscribe to session update
-    provider.on("session_update", ({ topic, params }: any) => {
-      console.log(topic, params);
-    });
+    UniversalProviderFactory.provider.on(
+      "session_update",
+      ({ topic, params }: any) => {
+        console.log(topic, params);
+      }
+    );
 
     // Subscribe to session delete
-    provider.on("session_delete", ({ id, topic }: any) => {
-      console.log(id, topic);
-    });
-  }
-
-  return {
-    setSettings: function (
-      _projectId: string,
-      _relayerRegion: string,
-      _metadata: WalletConnectAppMetadata,
-      _qrcode: boolean
-    ) {
-      relayerRegion = _relayerRegion;
-      projectId = _projectId;
-      metadata = _metadata;
-      qrcode = _qrcode;
-      console.log(qrcode);
-    },
-    getProvider: async function () {
-      if (!provider) {
-        await initProvider();
+    UniversalProviderFactory.provider.on(
+      "session_delete",
+      ({ id, topic }: any) => {
+        console.log(id, topic);
       }
-      return provider!;
-    },
-  };
-})();
+    );
+  }
+}
 
 export class WalletConnectConnector extends BaseConnector implements Connector {
   provider: UniversalProvider | undefined;
+  protected qrcode: boolean;
 
-  constructor(
-    protected projectId: string,
-    protected relayerRegion: string,
-    protected metadata: WalletConnectAppMetadata,
-    protected qrcode?: boolean,
-    autoconnect?: boolean
-  ) {
+  constructor({
+    projectId,
+    relayerRegion,
+    metadata,
+    qrcode,
+    autoconnect,
+  }: {
+    projectId: string;
+    relayerRegion: string;
+    metadata: WalletConnectAppMetadata;
+    qrcode?: boolean;
+    autoconnect?: boolean;
+  }) {
     super();
-    UniversalProviderFactory.setSettings(
+    this.qrcode = !!qrcode;
+    UniversalProviderFactory.setSettings({
       projectId,
       relayerRegion,
       metadata,
-      qrcode || false
-    );
+      qrcode: this.qrcode,
+    });
     if (autoconnect) {
       console.log("WC constructor > autoconnect true");
       UniversalProviderFactory.getProvider().then((provider) => {
@@ -102,7 +118,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
             provider.session.namespaces["solana"].accounts[0];
           console.log("Found accounts", defaultAccount);
           const address = defaultAccount.split(":")[2];
-          new Store().setAddress(address);
+          Store.setAddress(address);
         }
       });
     }
@@ -125,7 +141,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
   }
 
   public async signMessage(message: string) {
-    const address = new Store().getAddress();
+    const address = Store.getAddress();
     if (!address) throw new Error("No signer connected");
 
     const signedMessage = await this.request("solana_signMessage", {
@@ -162,7 +178,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
 
     const res = await this.request("solana_signTransaction", transactionParams);
     transaction.addSignature(
-      new PublicKey(new Store().getAddress()!),
+      new PublicKey(Store.getAddress()!),
       Buffer.from(base58.decode(res.signature))
     );
 
@@ -192,7 +208,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
    * QRCode.
    */
   public async connect() {
-    const chosenCluster = new Store().getCluster();
+    const chosenCluster = Store.getCluster();
     const clusterId = `solana:${chosenCluster.id}`;
     const solanaNamespace = {
       solana: {
@@ -231,7 +247,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
         if (!rs) throw new Error("Failed connection.");
         const address = rs.namespaces.solana.accounts[0].split(":")[2];
 
-        new Store().setAddress(address);
+        Store.setAddress(address);
 
         console.log({ rs });
 
