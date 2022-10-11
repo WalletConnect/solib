@@ -1,6 +1,6 @@
 import { proxy, subscribe } from 'valtio/vanilla'
-import { Connector } from '../connectors/base'
-import { Cluster } from '../types/cluster'
+import type { Connector } from '../connectors/base'
+import type { Cluster } from '../types/cluster'
 
 export interface StoreConfig {
   /**
@@ -53,9 +53,10 @@ class Store {
   }
 
   public static getNewRequestId() {
-    const curId = Store._store['requestId']
-    Store._store['requestId'] = curId + 1
-    return Store._store['requestId']
+    const curId = Store._store.requestId
+    Store._store.requestId = curId + 1
+    
+return Store._store.requestId
   }
 
   public static setAddress(address: string) {
@@ -68,9 +69,9 @@ class Store {
 
   public static setConnectorId(connectorId: string) {
     const connectorNames = Store._store.connectors.map(connector => connector.getConnectorName())
-    if (connectorNames.some(connectorName => connectorName === connectorId)) {
+    if (connectorNames.some(connectorName => connectorName === connectorId)) 
       Store.set('connectorName', connectorId)
-    } else
+     else
       throw new Error(`No connector with name ${connectorId} exists,
        available options are: ${connectorNames.join(',')} `)
   }
@@ -80,14 +81,14 @@ class Store {
   }
 
   public static getActiveConnector() {
-    const connectors = Store._store.connectors
+    const {connectors} = Store._store
     const id = Store._store.connectorName
 
     const connector = connectors.find(connector => connector.getConnectorName() === id)
 
-    if (!connector) {
+    if (!connector) 
       throw new Error('Invalid connector id configured')
-    }
+    
 
     return connector
   }
@@ -100,9 +101,9 @@ class Store {
     const unsub = subscribe(Store._store, ops => {
       const addressChangeOp = ops.find(op => op[1].includes('address'))
 
-      if (addressChangeOp) {
+      if (addressChangeOp) 
         callback(Store._store.address)
-      }
+      
     })
 
     return unsub
@@ -117,7 +118,7 @@ class Store {
   }
 
   public static setSocket(socket: WebSocket) {
-    return Store.set('socket', socket)
+    Store.set('socket', socket);
   }
 
   public static getConnectors() {

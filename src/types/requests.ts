@@ -1,22 +1,22 @@
 export interface ClusterSubscribeRequestMethods {
   signatureSubscribe: {
-    params: Array<string>
+    params: string[]
     returns: any
   }
   signatureUnsubscribe: {
-    params: Array<number>
+    params: number[]
     returns: any
   }
 }
 export interface ClusterRequestMethods {
   sendTransaction: {
     // Signed, serialized transaction
-    params: Array<string>
+    params: string[]
     returns: string
   }
 
   getBalance: {
-    params: Array<string>
+    params: string[]
     returns: {
       value: number
     }
@@ -35,7 +35,7 @@ export interface ClusterRequestMethods {
 export interface TransactionInstruction {
   programId: string
   data: any
-  keys: Array<{ isSigner: boolean; isWritable: boolean; pubkey: string }>
+  keys: { isSigner: boolean; isWritable: boolean; pubkey: string }[]
 }
 
 export interface RequestMethods {
@@ -53,7 +53,7 @@ export interface RequestMethods {
       feePayer: string
       instructions: TransactionInstruction[]
       recentBlockhash: string
-      signatures?: Array<{ pubkey: string; signature: string }>
+      signatures?: { pubkey: string; signature: string }[]
     }
     returns: {
       signature: string
@@ -80,11 +80,11 @@ export interface RequestMethods {
   }
 }
 
-export type TransactionArgs = {
+export interface TransactionArgs {
   transfer: {
     to: string
     amountInLamports: number
-    feePayer: 'to' | 'from'
+    feePayer: 'from' | 'to'
   }
 }
 export type TransactionType = keyof TransactionArgs

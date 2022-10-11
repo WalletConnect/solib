@@ -1,7 +1,7 @@
-export function waitForOpenConnection(socket: WebSocket) {
+export async function waitForOpenConnection(socket: WebSocket) {
   return new Promise<void>((resolve, reject) => {
     const maxNumberOfAttempts = 10
-    const intervalTime = 200 //ms
+    const intervalTime = 200 // Ms
 
     let currentAttempt = 0
     const interval = setInterval(() => {

@@ -2,7 +2,7 @@ import { Connection, PublicKey } from '@solana/web3.js'
 import { mainnetBetaProjectSerum } from '../defaults/clusters'
 import { getFavoriteDomain, getAllDomains, performReverseLookup } from './spl'
 
-export type FetchNameArgs = {
+export interface FetchNameArgs {
   address: string
 }
 
@@ -37,9 +37,10 @@ async function getSolDomainsFromPublicKey(
 ): Promise<string[]> {
   const allDomainKeys = await getAllDomains(connection, wallet)
   const allDomainNames = await Promise.all(
-    allDomainKeys.map((key: PublicKey) => {
+    allDomainKeys.map(async (key: PublicKey) => {
       return performReverseLookup(connection, key)
     })
   )
-  return allDomainNames
+  
+return allDomainNames
 }

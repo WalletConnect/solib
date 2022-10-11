@@ -1,24 +1,32 @@
 // Copyright 2020 Solana Foundation.
 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ */
 
 //     http://www.apache.org/licenses/LICENSE-2.0
 
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-// Two modifications were made:
-// * twitter names are not queried
-// * getAllDomains returns max 5 domains
+/*
+ * Two modifications were made:
+ * * twitter names are not queried
+ * * getAllDomains returns max 5 domains
+ */
 
-import { Connection, PublicKey } from '@solana/web3.js'
+import type { Connection} from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js'
 import { sha256 } from '@ethersproject/sha2'
-import { deserializeUnchecked, Schema, deserialize } from 'borsh'
+import type { Schema} from 'borsh';
+import { deserializeUnchecked, deserialize } from 'borsh'
 import BN from 'bn.js'
 
 /**
@@ -96,10 +104,11 @@ class FavouriteDomain {
    */
   static async retrieve(connection: Connection, key: PublicKey) {
     const accountInfo = await connection.getAccountInfo(key)
-    if (!accountInfo || !accountInfo.data) {
+    if (!accountInfo || !accountInfo.data) 
       throw new Error('Favourite domain not found')
-    }
-    return this.deserialize(accountInfo.data)
+    
+    
+return this.deserialize(accountInfo.data)
   }
 
   /**
@@ -109,7 +118,7 @@ class FavouriteDomain {
    * @returns
    */
   static async getKey(programId: PublicKey, owner: PublicKey) {
-    return await PublicKey.findProgramAddress(
+    return PublicKey.findProgramAddress(
       [Buffer.from('favourite_domain'), owner.toBuffer()],
       programId
     )
@@ -144,17 +153,17 @@ class NameRegistryState {
 
   public static async retrieve(connection: Connection, nameAccountKey: PublicKey) {
     const nameAccount = await connection.getAccountInfo(nameAccountKey)
-    if (!nameAccount) {
+    if (!nameAccount) 
       throw new Error('Invalid name account provided')
-    }
+    
 
-    let res: NameRegistryState = deserializeUnchecked(
+    const res: NameRegistryState = deserializeUnchecked(
       this.schema,
       NameRegistryState,
       nameAccount.data
     )
 
-    res.data = nameAccount.data?.slice(this.HEADER_LEN)
+    res.data = nameAccount.data.slice(this.HEADER_LEN)
 
     return { registry: res }
   }
@@ -164,25 +173,29 @@ class NameRegistryState {
     const fn = (data: Buffer | undefined) => {
       if (!data) return undefined
       const res: NameRegistryState = deserializeUnchecked(this.schema, NameRegistryState, data)
-      res.data = data?.slice(this.HEADER_LEN)
-      return res
+      res.data = data.slice(this.HEADER_LEN)
+      
+return res
     }
-    return nameAccounts.map(e => fn(e?.data))
+    
+return nameAccounts.map(e => fn(e?.data))
   }
 
   public static async retrieveBatch(connection: Connection, nameAccountKeys: PublicKey[]) {
-    let result: (NameRegistryState | undefined)[] = []
-    while (nameAccountKeys.length > 0) {
+    const result: (NameRegistryState | undefined)[] = []
+    while (nameAccountKeys.length > 0) 
       result.push(...(await this._retrieveBatch(connection, nameAccountKeys.splice(0, 100))))
-    }
-    return result
+    
+    
+return result
   }
 }
 
 async function getHashedName(name: string): Promise<Buffer> {
   const input = HASH_PREFIX + name
   const str = sha256(Buffer.from(input, 'utf8')).slice(2)
-  return Buffer.from(str, 'hex')
+  
+return Buffer.from(str, 'hex')
 }
 
 async function getNameAccountKey(
@@ -191,18 +204,19 @@ async function getNameAccountKey(
   nameParent?: PublicKey
 ): Promise<PublicKey> {
   const seeds = [hashed_name]
-  if (nameClass) {
+  if (nameClass) 
     seeds.push(nameClass.toBuffer())
-  } else {
+   else 
     seeds.push(Buffer.alloc(32))
-  }
-  if (nameParent) {
+  
+  if (nameParent) 
     seeds.push(nameParent.toBuffer())
-  } else {
+   else 
     seeds.push(Buffer.alloc(32))
-  }
+  
   const [nameAccountKey] = await PublicKey.findProgramAddress(seeds, NAME_PROGRAM_ID)
-  return nameAccountKey
+  
+return nameAccountKey
 }
 
 export async function performReverseLookup(
@@ -213,11 +227,12 @@ export async function performReverseLookup(
   const reverseLookupAccount = await getNameAccountKey(hashedReverseLookup, REVERSE_LOOKUP_CLASS)
 
   const { registry } = await NameRegistryState.retrieve(connection, reverseLookupAccount)
-  if (!registry.data) {
+  if (!registry.data) 
     throw 'Could not retrieve name data'
-  }
+  
   const nameLength = new BN(registry.data.slice(0, 4), 'le').toNumber()
-  return registry.data.slice(4, 4 + nameLength).toString() + '.sol'
+  
+return `${registry.data.slice(4, 4 + nameLength).toString()  }.sol`
 }
 
 /**

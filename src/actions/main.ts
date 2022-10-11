@@ -1,4 +1,5 @@
-import Store, { StoreConfig } from '../store'
+import type { StoreConfig } from '../store';
+import Store from '../store'
 import { polyfill } from '../utils/buffer'
 import { withConnector } from '../utils/connector'
 
@@ -9,7 +10,7 @@ export function init(config: StoreConfig) {
 
 export async function connect() {
   return withConnector(async connector => {
-    return await connector.connect()
+    return connector.connect()
   })
 }
 

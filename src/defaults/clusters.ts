@@ -1,4 +1,4 @@
-import { Cluster } from '../types/cluster'
+import type { Cluster } from '../types/cluster'
 
 export const mainnetBetaProjectSerum: Cluster = {
   name: 'mainnetBeta',

@@ -1,8 +1,9 @@
-import { Transaction } from '@solana/web3.js'
+import type { Transaction } from '@solana/web3.js'
 import base58 from 'bs58'
 import Store from '../store'
-import { TransactionArgs, TransactionType } from '../types/requests'
-import { BaseConnector, Connector } from './base'
+import type { TransactionArgs, TransactionType } from '../types/requests'
+import type { Connector } from './base';
+import { BaseConnector } from './base'
 
 export interface PhantomPublicKey {
   length: number
@@ -27,22 +28,20 @@ declare global {
   }
 }
 export class PhantomConnector extends BaseConnector implements Connector {
-  public static get connectorName() {
-    return 'phantom'
-  }
+  public static readonly connectorName = 'phantom';
 
   public geConnectortName(): string {
     return PhantomConnector.connectorName
   }
-  protected getProvider() {
-    if (typeof window !== 'undefined' && window.phantom) {
+  protected async getProvider() {
+    if (typeof window !== 'undefined' && window.phantom) 
       return Promise.resolve(window.phantom.solana)
-    }
+    
     throw new Error('No Phantom provider found')
   }
 
   public isAvailable(): boolean {
-    return !!this.getProvider()
+    return Boolean(this.getProvider())
   }
 
   public async connect() {
@@ -78,6 +77,6 @@ export class PhantomConnector extends BaseConnector implements Connector {
     type: Type,
     params: TransactionArgs[Type]
   ) {
-    return await this.sendTransaction(await this.signTransaction(type, params))
+    return this.sendTransaction(await this.signTransaction(type, params))
   }
 }

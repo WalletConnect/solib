@@ -1,4 +1,4 @@
-import { TransactionArgs, TransactionType } from '../types/requests'
+import type { TransactionArgs, TransactionType } from '../types/requests'
 import { withConnector } from '../utils/connector'
 
 export async function signTransaction<Type extends TransactionType>(
@@ -6,13 +6,13 @@ export async function signTransaction<Type extends TransactionType>(
   transactionArgs: TransactionArgs[Type]
 ) {
   return withConnector(async connector => {
-    return await connector.signTransaction(type, transactionArgs)
+    return connector.signTransaction(type, transactionArgs)
   })
 }
 
 export async function sendTransaction(encodedTransaction: string) {
   return withConnector(async connector => {
-    return await connector.sendTransaction(encodedTransaction)
+    return connector.sendTransaction(encodedTransaction)
   })
 }
 
@@ -21,7 +21,7 @@ export async function signAndSendTransaction<Type extends TransactionType>(
   transactionArgs: TransactionArgs[Type]
 ) {
   return withConnector(async connector => {
-    return await connector.signAndSendTransaction(type, transactionArgs)
+    return connector.signAndSendTransaction(type, transactionArgs)
   })
 }
 
@@ -30,6 +30,6 @@ export async function watchTransaction(
   callback: (params: any) => void
 ) {
   return withConnector(async connector => {
-    return await connector.watchTransaction(transactionSignature, callback)
+    return connector.watchTransaction(transactionSignature, callback)
   })
 }

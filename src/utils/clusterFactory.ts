@@ -1,27 +1,29 @@
 import { proxy } from 'valtio/vanilla'
 import Store from '../store'
-import { ClusterSubscribeRequestMethods } from '../types/requests'
+import type { ClusterSubscribeRequestMethods } from '../types/requests'
 import { waitForOpenConnection } from './websocket'
 
 export const ClusterFactory = (function () {
   let socket: WebSocket | undefined
-  let listeners: Record<number, { callback: (params: any) => void; method: string; id: number }> =
+  const listeners: Record<number, { callback: (params: any) => void; method: string; id: number }> =
     proxy({})
-  let subIdToReqId: Record<number, number> = proxy({})
+  const subIdToReqId: Record<number, number> = proxy({})
   async function setSocket() {
     const cluster = Store.getCluster()
-    const endpoint = cluster.endpoint
+    const {endpoint} = cluster
     socket = new WebSocket(endpoint.replace('http', 'ws'))
-    await waitForOpenConnection(socket!)
+    await waitForOpenConnection(socket)
 
     socket.onmessage = ev => {
       const data = JSON.parse(ev.data)
 
-      // If request is a subscribtion init notification
-      // Copy data to new ID (request ID -> Subscribtion ID)
-      if (data.id) {
+      /*
+       * If request is a subscribtion init notification
+       * Copy data to new ID (request ID -> Subscribtion ID)
+       */
+      if (data.id) 
         subIdToReqId[data.result] = data.id
-      }
+      
 
       if (data.params?.subscription) {
         console.log('Found subscription', data.params.subscription)
@@ -72,11 +74,12 @@ export const ClusterFactory = (function () {
   return {
     registerListener,
     unregisterListener,
-    getSocket: async function () {
-      if (!socket) {
+    async getSocket () {
+      if (!socket) 
         await setSocket()
-      }
-      return socket
+      
+      
+return socket
     }
   }
 })()

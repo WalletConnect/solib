@@ -1,6 +1,6 @@
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import Store from '../store'
-import {
+import type {
   ClusterRequestMethods,
   ClusterSubscribeRequestMethods,
   RequestMethods,
@@ -64,7 +64,7 @@ export class BaseConnector {
         transaction.feePayer = params.feePayer === 'from' ? fromPubkey : toPubkey
     }
 
-    let { value } = await this.requestCluster('getLatestBlockhash', [{}])
+    const { value } = await this.requestCluster('getLatestBlockhash', [{}])
     const { blockhash: recentBlockhash } = value
     transaction.recentBlockhash = recentBlockhash
 
@@ -78,7 +78,7 @@ export class BaseConnector {
   }
 
   public async watchTransaction(transactionSignature: string, callback: (params: any) => void) {
-    return await this.subscribeToCluster('signatureSubscribe', [transactionSignature], callback)
+    return this.subscribeToCluster('signatureSubscribe', [transactionSignature], callback)
   }
 
   public async getBalance(requestedAddress?: string) {
@@ -114,7 +114,7 @@ export class BaseConnector {
     params: ClusterRequestMethods[Method]['params']
   ): Promise<ClusterRequestMethods[Method]['returns']> {
     const cluster = Store.getCluster()
-    const endpoint = cluster.endpoint
+    const {endpoint} = cluster
     const res: { result: ClusterRequestMethods[Method]['returns'] } = await fetch(endpoint, {
       method: 'post',
       body: JSON.stringify({
@@ -130,7 +130,8 @@ export class BaseConnector {
       const json = await res.json()
 
       console.log({ json })
-      return json
+      
+return json
     })
 
     return res.result

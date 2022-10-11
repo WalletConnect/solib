@@ -1,7 +1,8 @@
 import UniversalProvider from '@walletconnect/universal-provider'
 import QRCodeModal from '@walletconnect/qrcode-modal'
-import { BaseConnector, Connector } from './base'
-import { TransactionArgs, TransactionType } from '../types/requests'
+import type { Connector } from './base';
+import { BaseConnector } from './base'
+import type { TransactionArgs, TransactionType } from '../types/requests'
 import Store from '../store'
 import base58 from 'bs58'
 import { PublicKey } from '@solana/web3.js'
@@ -12,7 +13,7 @@ export interface WalletConnectAppMetadata {
   name: string
   description: string
   url: string
-  icons: Array<string>
+  icons: string[]
 }
 
 class UniversalProviderFactory {
@@ -33,10 +34,11 @@ class UniversalProviderFactory {
   }
 
   public static async getProvider() {
-    if (!UniversalProviderFactory.provider) {
+    if (!UniversalProviderFactory.provider) 
       await UniversalProviderFactory.init()
-    }
-    return UniversalProviderFactory.provider!
+    
+    
+return UniversalProviderFactory.provider!
   }
 
   public static async init() {
@@ -87,7 +89,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     autoconnect?: boolean
   }) {
     super()
-    this.qrcode = !!qrcode
+    this.qrcode = Boolean(qrcode)
     UniversalProviderFactory.setSettings({
       projectId,
       relayerRegion,
@@ -100,9 +102,9 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
         console.log('Provider state', { provider })
         if (
           provider.session.namespaces &&
-          provider.session.namespaces['solana']?.accounts?.length
+          provider.session.namespaces.solana.accounts.length
         ) {
-          const defaultAccount = provider.session.namespaces['solana'].accounts[0]
+          const defaultAccount = provider.session.namespaces.solana.accounts[0]
           console.log('Found accounts', defaultAccount)
           const address = defaultAccount.split(':')[2]
           Store.setAddress(address)
@@ -111,9 +113,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     }
   }
 
-  public static get connectorName() {
-    return 'walletconnect'
-  }
+  public static readonly connectorName = 'walletconnect';
 
   public getConnectorName(): string {
     return WalletConnectConnector.connectorName
@@ -124,7 +124,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
   }
 
   protected async getProvider() {
-    return await UniversalProviderFactory.getProvider()
+    return UniversalProviderFactory.getProvider()
   }
 
   public async signMessage(message: string) {
@@ -174,14 +174,15 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     if (!validSig) throw new Error('Signature invalid.')
 
     console.log({ res, validSig })
-    return base58.encode(transaction.serialize())
+    
+return base58.encode(transaction.serialize())
   }
 
   public async signAndSendTransaction<Type extends TransactionType>(
     type: Type,
     params: TransactionArgs[Type]
   ) {
-    return await this.sendTransaction(await this.signTransaction(type, params))
+    return this.sendTransaction(await this.signTransaction(type, params))
   }
 
   /**
@@ -212,11 +213,11 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
 
     return new Promise<string>(async resolve => {
       provider.on('display_uri', (uri: string) => {
-        if (this.qrcode) {
+        if (this.qrcode) 
           QRCodeModal.open(uri, (data: any) => {
             console.log('Opened QRCodeModal', data)
           })
-        } else resolve(uri)
+         else resolve(uri)
       })
 
       console.log({
