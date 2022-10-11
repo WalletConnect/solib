@@ -1,4 +1,4 @@
-import UniversalProvider from '@walletconnect/universal-provider/dist/types/UniversalProvider'
+import UniversalProvider from '@walletconnect/universal-provider'
 import type { WalletConnectAppMetadata } from '../connectors/walletconnect'
 
 const DEFAULT_LOGGER = 'error'

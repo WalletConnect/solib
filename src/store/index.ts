@@ -94,7 +94,9 @@ export function setCluster(cluster: Cluster) {
 }
 
 export function watchAddress(callback: (address?: string) => void) {
+  console.log('Subscribing to address')
   const unsub = subscribe(store, ops => {
+    console.log({ ops })
     const addressChangeOp = ops.find(op => op[1].includes('address'))
 
     if (addressChangeOp) callback(store.address)

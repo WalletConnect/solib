@@ -1,3 +1,4 @@
 src/actions/spl.ts
 node_modules/**/*
+example-next/**/*
 dist/**/*

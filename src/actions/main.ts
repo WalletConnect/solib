@@ -1,5 +1,10 @@
-import type { StoreConfig } from '../store'
-import { initStore, getAddress as storeGetAddress } from '../store'
+import { setCluster, setConnectorName, StoreConfig } from '../store'
+import {
+  initStore,
+  getAddress as storeGetAddress,
+  watchAddress as storeWatchAddress
+} from '../store'
+import { Cluster } from '../types/cluster'
 import { withConnector } from '../utils/connector'
 
 export function init(config: StoreConfig) {
@@ -29,5 +34,13 @@ export function getAddress() {
 }
 
 export function watchAddress(callback: (address?: string) => void) {
-  watchAddress(callback)
+  storeWatchAddress(callback)
+}
+
+export function switchNetwork(cluster: Cluster) {
+  setCluster(cluster)
+}
+
+export function switchConnector(connectorName: string) {
+  setConnectorName(connectorName)
 }
