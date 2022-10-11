@@ -1,10 +1,11 @@
-import { setCluster, setConnectorName, StoreConfig } from '../store'
+import type { StoreConfig } from '../store'
+import { setCluster, setConnectorName } from '../store'
 import {
   initStore,
   getAddress as storeGetAddress,
   watchAddress as storeWatchAddress
 } from '../store'
-import { Cluster } from '../types/cluster'
+import type { Cluster } from '../types/cluster'
 import { withConnector } from '../utils/connector'
 
 export function init(config: StoreConfig) {
