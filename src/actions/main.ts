@@ -1,11 +1,9 @@
-import type { StoreConfig } from '../store';
-import Store from '../store'
-import { polyfill } from '../utils/buffer'
+import type { StoreConfig } from '../store'
+import { initStore, getAddress as storeGetAddress } from '../store'
 import { withConnector } from '../utils/connector'
 
 export function init(config: StoreConfig) {
-  polyfill()
-  new Store(config)
+  initStore(config)
 }
 
 export async function connect() {
@@ -16,20 +14,20 @@ export async function connect() {
 
 export async function signMessage(message: string) {
   return withConnector(async connector => {
-    return await connector.signMessage(message)
+    return connector.signMessage(message)
   })
 }
 
 export async function getBalance(requestedAddress?: string) {
   return withConnector(async connector => {
-    return await connector.getBalance(requestedAddress)
+    return connector.getBalance(requestedAddress)
   })
 }
 
-export async function getAddress() {
-  return Store.getAddress()
+export function getAddress() {
+  return storeGetAddress()
 }
 
-export async function watchAddress(callback: (address?: string) => void) {
-  return Store.watchAddress(callback)
+export function watchAddress(callback: (address?: string) => void) {
+  watchAddress(callback)
 }

@@ -1,13 +1,12 @@
-import UniversalProvider from '@walletconnect/universal-provider'
+import type UniversalProvider from '@walletconnect/universal-provider'
 import QRCodeModal from '@walletconnect/qrcode-modal'
-import type { Connector } from './base';
+import type { Connector } from './base'
 import { BaseConnector } from './base'
 import type { TransactionArgs, TransactionType } from '../types/requests'
-import Store from '../store'
 import base58 from 'bs58'
 import { PublicKey } from '@solana/web3.js'
-
-const DEFAULT_LOGGER = 'error'
+import { UniversalProviderFactory } from '../utils/universalProvider'
+import { getAddress, getCluster, setAddress } from '../store'
 
 export interface WalletConnectAppMetadata {
   name: string
@@ -16,66 +15,11 @@ export interface WalletConnectAppMetadata {
   icons: string[]
 }
 
-class UniversalProviderFactory {
-  static provider: UniversalProvider | undefined
-  static relayerRegion: string | undefined
-  static projectId: string | undefined
-  static metadata: WalletConnectAppMetadata | undefined
-
-  public static setSettings(params: {
-    projectId: string
-    relayerRegion: string
-    metadata: WalletConnectAppMetadata
-    qrcode: boolean
-  }) {
-    UniversalProviderFactory.relayerRegion = params.relayerRegion
-    UniversalProviderFactory.projectId = params.projectId
-    UniversalProviderFactory.metadata = params.metadata
-  }
-
-  public static async getProvider() {
-    if (!UniversalProviderFactory.provider) 
-      await UniversalProviderFactory.init()
-    
-    
-return UniversalProviderFactory.provider!
-  }
-
-  public static async init() {
-    UniversalProviderFactory.provider = await UniversalProvider.init({
-      logger: DEFAULT_LOGGER,
-      relayUrl: UniversalProviderFactory.relayerRegion,
-      projectId: UniversalProviderFactory.projectId,
-      metadata: UniversalProviderFactory.metadata
-    })
-
-    // Subscribe to session ping
-    UniversalProviderFactory.provider.on('session_ping', ({ id, topic }: any) => {
-      console.log(id, topic)
-    })
-
-    // Subscribe to session event
-    UniversalProviderFactory.provider.on('session_event', ({ event, chainId }: any) => {
-      console.log(event, chainId)
-    })
-
-    // Subscribe to session update
-    UniversalProviderFactory.provider.on('session_update', ({ topic, params }: any) => {
-      console.log(topic, params)
-    })
-
-    // Subscribe to session delete
-    UniversalProviderFactory.provider.on('session_delete', ({ id, topic }: any) => {
-      console.log(id, topic)
-    })
-  }
-}
-
 export class WalletConnectConnector extends BaseConnector implements Connector {
-  provider: UniversalProvider | undefined
+  protected provider: UniversalProvider | undefined
   protected qrcode: boolean
 
-  constructor({
+  public constructor({
     projectId,
     relayerRegion,
     metadata,
@@ -100,20 +44,18 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
       console.log('WC constructor > autoconnect true')
       UniversalProviderFactory.getProvider().then(provider => {
         console.log('Provider state', { provider })
-        if (
-          provider.session.namespaces &&
-          provider.session.namespaces.solana.accounts.length
-        ) {
-          const defaultAccount = provider.session.namespaces.solana.accounts[0]
+        if (provider.session.namespaces.solana.accounts.length) {
+          const [defaultAccount] = provider.session.namespaces.solana.accounts
           console.log('Found accounts', defaultAccount)
+          // eslint-disable-next-line prefer-destructuring
           const address = defaultAccount.split(':')[2]
-          Store.setAddress(address)
+          setAddress(address)
         }
       })
     }
   }
 
-  public static readonly connectorName = 'walletconnect';
+  public static readonly connectorName = 'walletconnect'
 
   public getConnectorName(): string {
     return WalletConnectConnector.connectorName
@@ -124,11 +66,13 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
   }
 
   protected async getProvider() {
-    return UniversalProviderFactory.getProvider()
+    const provider = await UniversalProviderFactory.getProvider()
+
+    return provider
   }
 
   public async signMessage(message: string) {
-    const address = Store.getAddress()
+    const address = getAddress()
     if (!address) throw new Error('No signer connected')
 
     const signedMessage = await this.request('solana_signMessage', {
@@ -137,7 +81,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     })
     const { signature } = signedMessage
 
-    return { signature }
+    return signature
   }
 
   public async signTransaction<Type extends TransactionType>(
@@ -148,7 +92,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     console.log('Made transaction', transaction)
 
     const transactionParams = {
-      feePayer: transaction.feePayer?.toBase58()!,
+      feePayer: transaction.feePayer?.toBase58() ?? '',
       instructions: transaction.instructions.map(instruction => ({
         data: base58.encode(instruction.data),
         keys: instruction.keys.map(key => ({
@@ -158,14 +102,14 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
         })),
         programId: instruction.programId.toBase58()
       })),
-      recentBlockhash: transaction.recentBlockhash!
+      recentBlockhash: transaction.recentBlockhash ?? ''
     }
 
     console.log('Formatted transaction', transactionParams)
 
     const res = await this.request('solana_signTransaction', transactionParams)
     transaction.addSignature(
-      new PublicKey(Store.getAddress()!),
+      new PublicKey(getAddress() ?? ''),
       Buffer.from(base58.decode(res.signature))
     )
 
@@ -174,8 +118,8 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     if (!validSig) throw new Error('Signature invalid.')
 
     console.log({ res, validSig })
-    
-return base58.encode(transaction.serialize())
+
+    return base58.encode(transaction.serialize())
   }
 
   public async signAndSendTransaction<Type extends TransactionType>(
@@ -196,7 +140,7 @@ return base58.encode(transaction.serialize())
    * QRCode.
    */
   public async connect() {
-    const chosenCluster = Store.getCluster()
+    const chosenCluster = getCluster()
     const clusterId = `solana:${chosenCluster.id}`
     const solanaNamespace = {
       solana: {
@@ -211,36 +155,32 @@ return base58.encode(transaction.serialize())
 
     const provider = await UniversalProviderFactory.getProvider()
 
-    return new Promise<string>(async resolve => {
+    return new Promise<string>(resolve => {
       provider.on('display_uri', (uri: string) => {
-        if (this.qrcode) 
-          QRCodeModal.open(uri, (data: any) => {
+        if (this.qrcode)
+          QRCodeModal.open(uri, (data: unknown) => {
             console.log('Opened QRCodeModal', data)
           })
-         else resolve(uri)
+        else resolve(uri)
       })
 
-      console.log({
-        solanaNamespace,
-        provider,
-        thing: (provider as any).target
-      })
+      provider
+        .connect({
+          pairingTopic: undefined,
+          namespaces: solanaNamespace
+        })
+        .then(providerResult => {
+          if (this.qrcode) {
+            if (!providerResult) throw new Error('Failed connection.')
+            const address = providerResult.namespaces.solana.accounts[0].split(':')[2]
 
-      const rs = await provider.connect({
-        pairingTopic: undefined,
-        namespaces: solanaNamespace
-      })
+            setAddress(address)
 
-      if (this.qrcode) {
-        if (!rs) throw new Error('Failed connection.')
-        const address = rs.namespaces.solana.accounts[0].split(':')[2]
+            console.log({ rs: providerResult })
 
-        Store.setAddress(address)
-
-        console.log({ rs })
-
-        resolve(address)
-      }
+            resolve(address)
+          }
+        })
     })
   }
 }

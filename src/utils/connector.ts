@@ -1,12 +1,10 @@
 import type { Connector } from '../connectors/base'
-import Store from '../store'
+import { getActiveConnector } from '../store'
 
 export async function withConnector<T>(withConnectorFunc: (connector: Connector) => Promise<T>) {
-  const connector = Store.getActiveConnector()
+  const connector = getActiveConnector()
 
-  if (connector.isAvailable()) 
-    return withConnectorFunc(connector)
-  
+  if (connector.isAvailable()) return withConnectorFunc(connector)
 
   return null
 }

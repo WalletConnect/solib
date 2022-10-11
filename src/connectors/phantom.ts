@@ -1,8 +1,8 @@
 import type { Transaction } from '@solana/web3.js'
 import base58 from 'bs58'
-import Store from '../store'
-import type { TransactionArgs, TransactionType } from '../types/requests'
-import type { Connector } from './base';
+import { setAddress } from '../store'
+import type { RequestMethods, TransactionArgs, TransactionType } from '../types/requests'
+import type { Connector } from './base'
 import { BaseConnector } from './base'
 
 export interface PhantomPublicKey {
@@ -18,7 +18,9 @@ declare global {
       solana: {
         connect: () => Promise<{ publicKey: PhantomPublicKey }>
         disconnect: () => Promise<void>
-        request: (params: any) => any
+        request: <Method extends keyof RequestMethods>(
+          params: RequestMethods[Method]['params']
+        ) => RequestMethods[Method]['returns']
         signTransaction: (transaction: Transaction) => Promise<{
           serialize: () => Uint8Array
         }>
@@ -28,15 +30,15 @@ declare global {
   }
 }
 export class PhantomConnector extends BaseConnector implements Connector {
-  public static readonly connectorName = 'phantom';
+  public static readonly connectorName = 'phantom'
 
   public geConnectortName(): string {
     return PhantomConnector.connectorName
   }
   protected async getProvider() {
-    if (typeof window !== 'undefined' && window.phantom) 
+    if (typeof window !== 'undefined' && window.phantom)
       return Promise.resolve(window.phantom.solana)
-    
+
     throw new Error('No Phantom provider found')
   }
 
@@ -46,7 +48,7 @@ export class PhantomConnector extends BaseConnector implements Connector {
 
   public async connect() {
     const resp = await (await this.getProvider()).connect()
-    Store.setAddress(resp.publicKey.toString())
+    setAddress(resp.publicKey.toString())
 
     return resp.publicKey.toString()
   }
@@ -59,7 +61,7 @@ export class PhantomConnector extends BaseConnector implements Connector {
     })
     const { signature } = signedMessage
 
-    return { signature }
+    return signature
   }
 
   public async signTransaction<Type extends TransactionType>(

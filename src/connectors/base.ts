@@ -1,5 +1,5 @@
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
-import Store from '../store'
+import { getAddress, getCluster, getNewRequestId } from '../store'
 import type {
   ClusterRequestMethods,
   ClusterSubscribeRequestMethods,
@@ -7,13 +7,13 @@ import type {
   TransactionArgs,
   TransactionType
 } from '../types/requests'
-import { ClusterFactory } from '../utils/clusterFactory'
+import { registerListener, unregisterListener } from '../utils/clusterFactory'
 
 export interface Connector {
   isAvailable: () => boolean
   getConnectorName: () => string
   connect: () => Promise<string>
-  signMessage: (message: string) => any
+  signMessage: (message: string) => Promise<string>
   signTransaction: <Type extends TransactionType>(
     type: Type,
     params: TransactionArgs[Type]
@@ -23,10 +23,10 @@ export interface Connector {
     type: Type,
     params: TransactionArgs[Type]
   ) => Promise<string>
-  getBalance: (requestedAddress?: string) => any
+  getBalance: (requestedAddress?: string) => Promise<number | null>
   watchTransaction: (
     transactionSignature: string,
-    callback: (params: any) => void
+    callback: (params: unknown) => void
   ) => Promise<() => void>
 }
 
@@ -34,10 +34,11 @@ export class BaseConnector {
   public getConnectorName() {
     return 'base'
   }
-  protected getProvider(): Promise<{
-    request: (args: { method: any; params: any }) => any
-  }> | null {
-    return null
+  protected async getProvider(): Promise<{
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    request: (args: any) => any
+  }> {
+    return Promise.reject(new Error('No provider in base connector'))
   }
 
   protected async constructTransaction<Type extends TransactionType>(
@@ -46,14 +47,14 @@ export class BaseConnector {
   ) {
     const transaction = new Transaction()
 
-    const fromAddress = Store.getAddress()
+    const fromAddress = getAddress()
 
     if (!fromAddress) throw new Error('No address connected')
+    const fromPubkey = new PublicKey(fromAddress)
+    const toPubkey = new PublicKey(params.to)
 
     switch (type) {
       case 'transfer':
-        const fromPubkey = new PublicKey(fromAddress)
-        const toPubkey = new PublicKey(params.to)
         transaction.add(
           SystemProgram.transfer({
             fromPubkey,
@@ -62,6 +63,8 @@ export class BaseConnector {
           })
         )
         transaction.feePayer = params.feePayer === 'from' ? fromPubkey : toPubkey
+        break
+      default:
     }
 
     const { value } = await this.requestCluster('getLatestBlockhash', [{}])
@@ -77,12 +80,15 @@ export class BaseConnector {
     return signature
   }
 
-  public async watchTransaction(transactionSignature: string, callback: (params: any) => void) {
+  public async watchTransaction(
+    transactionSignature: string,
+    callback: (params: Transaction) => void
+  ) {
     return this.subscribeToCluster('signatureSubscribe', [transactionSignature], callback)
   }
 
   public async getBalance(requestedAddress?: string) {
-    const address = requestedAddress ?? Store.getAddress()
+    const address = requestedAddress ?? getAddress()
     if (!address) return null
 
     const balance = await this.requestCluster('getBalance', [address])
@@ -94,18 +100,18 @@ export class BaseConnector {
     method: Method,
     params: RequestMethods[Method]['params']
   ): Promise<RequestMethods[Method]['returns']> {
-    return (await this.getProvider())?.request({ method, params })
+    return (await this.getProvider()).request({ method, params })
   }
 
   public async subscribeToCluster<Method extends keyof ClusterSubscribeRequestMethods>(
     method: Method,
-    params: ClusterSubscribeRequestMethods[Method]['returns'],
-    callback: (params: any) => void
+    params: ClusterSubscribeRequestMethods[Method]['params'],
+    callback: (params: ClusterSubscribeRequestMethods[Method]['returns']) => void
   ) {
-    const id = await ClusterFactory.registerListener(method, params, callback)
+    const id = await registerListener(method, params, callback)
 
-    return async () => {
-      await ClusterFactory.unregisterListener(id)
+    return () => {
+      unregisterListener(id)
     }
   }
 
@@ -113,25 +119,25 @@ export class BaseConnector {
     method: Method,
     params: ClusterRequestMethods[Method]['params']
   ): Promise<ClusterRequestMethods[Method]['returns']> {
-    const cluster = Store.getCluster()
-    const {endpoint} = cluster
+    const cluster = getCluster()
+    const { endpoint } = cluster
     const res: { result: ClusterRequestMethods[Method]['returns'] } = await fetch(endpoint, {
       method: 'post',
       body: JSON.stringify({
         method,
         params,
         jsonrpc: '2.0',
-        id: Store.getNewRequestId()
+        id: getNewRequestId()
       }),
       headers: {
         'Content-Type': 'application/json'
       }
-    }).then(async res => {
-      const json = await res.json()
+    }).then(async httpRes => {
+      const json = await httpRes.json()
 
       console.log({ json })
-      
-return json
+
+      return json
     })
 
     return res.result

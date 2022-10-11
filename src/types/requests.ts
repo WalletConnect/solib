@@ -1,11 +1,13 @@
+import type { Transaction } from '@solana/web3.js'
+
 export interface ClusterSubscribeRequestMethods {
   signatureSubscribe: {
     params: string[]
-    returns: any
+    returns: Transaction
   }
   signatureUnsubscribe: {
     params: number[]
-    returns: any
+    returns: unknown
   }
 }
 export interface ClusterRequestMethods {
@@ -34,7 +36,7 @@ export interface ClusterRequestMethods {
 
 export interface TransactionInstruction {
   programId: string
-  data: any
+  data: string
   keys: { isSigner: boolean; isWritable: boolean; pubkey: string }[]
 }
 
