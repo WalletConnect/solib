@@ -12,7 +12,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && tsc --emitDeclarationOnly",
-    "preview": "vite preview"
+    "preview": "vite preview",
+		"lint": "eslint .",
+    "prettier": "prettier --check .",
+    "format": "prettier --check . -w"
   },
   "dependencies": {
     "@ethersproject/sha2": "^5.7.0",
@@ -28,6 +31,8 @@
   "devDependencies": {
     "@types/bn.js": "^5.1.1",
     "better-sqlite3": "^7.6.2",
+    "eslint": "^8.25.0",
+    "prettier": "^2.7.1",
     "react": "^18.2.0",
     "tslib": "^2.4.0",
     "typescript": "^4.6.4",
