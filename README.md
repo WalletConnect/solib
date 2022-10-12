@@ -1,6 +1,6 @@
 # Solib
 
-Solana friendly API
+**Solana** friendly API
 
 # Current Capabilities
 
@@ -8,12 +8,135 @@ Solana friendly API
 
 - Connect Wallet:
   - Phantom
+  - WalletConnect
 - Get balance
 - Sign Transaction
 - Send Transaction
 - Sign and send Transaction
 - Sign Message
 - Watch Transactions
+
+### Init
+
+The init function needs to be called to prepare `solib` to be able to call all
+the functions in its API.
+
+```ts
+import { init } from 'solib'
+
+init({
+  // The different connector methodologies that will be used. 
+  // PhantomConnector will interact with injected Phantom Wallet using browser
+  // extension, while WalletConnectConnector can be used to interact with all
+  // wallets that support the WalletConnect protocol.
+  connectors: [
+    new PhantomConnector(),
+    new WalletConnectConnector({
+      projectId: PROJECT_ID,
+      relayerRegion: 'wss://relay.walletconnect.com',
+      metadata: {
+        description: 'Test app for solib',
+        name: 'Test Solib dApp',
+        icons: ['https://avatars.githubusercontent.com/u/37784886'],
+        url: 'http://localhost:3000'
+      },
+      autoconnect: true,
+      qrcode: true
+    })
+  ],
+  // Name of the connector to be used. 
+  // The connector needs to be registered in the connectors field above.
+  // This can be switched later using `switchConnector` function.
+  connectorName: WalletConnectConnector.connectorName,
+  // The name of the cluster and network to use. 
+  // Here, `mainnetBeta` refers to the mainnetBeta Solana network, while
+  // `WalletConnect` is the RPC server thhat will be used to do the communication
+  chosenCluster: mainnetBetaWalletConnect(PROJECT_ID)
+})
+```
+
+### Connect Wallet
+The connect function can be used to connect a wallet to a dApp. The wallet
+chosen needs to be configured in the `init` function above.
+
+```ts
+import { connect } from 'solib'
+
+const address = await connect()
+```
+
+### Watch Address
+Instead of retrieving the address once on the connect function, one can globally
+watch address changes using the `watchAddress` API.
+```ts
+import { watchAddress, connect } from 'solib'
+
+watchAddress((address) => {
+  console.log({address})
+})
+
+connect()
+```
+
+### Get Balance
+```ts
+import { getBalance } from 'solib'
+
+const connectedWalletBalance: number = await getBalance();
+```
+
+### Sign Message
+
+```ts
+import { signMessage } from 'solbi'
+
+const signature = await signMessage('Test');
+```
+
+### Sign and Send Transaction
+
+```ts
+import { signAndSendTransaction } from 'solbi'
+
+const transactionHash = signAndSendTransaction('transfer', {
+  to,
+  amountInLamports,
+  feePayer: 'from'
+})
+```
+
+### Watch Transaction
+
+```ts
+import {signAndSendTransaction, watchTransaction} from 'solib'
+
+const transactionHash = signAndSendTransaction('transfer', {
+  to,
+  amountInLamports,
+  feePayer: 'from'
+})
+
+watchTransaction(transactionHash, (update) => console.log({update}))
+```
+
+### Switch network
+
+```ts
+import { switchNetwork, mainnetBetaProjectSerum } from 'solib'
+
+switchNetwork(mainnetBetaProjectSerum)
+```
+
+### Switch Connector
+
+```ts
+import { switchConnector, PhantomConnector, connect } from 'solib'
+
+switchConnector(PhantomConnector.connectorName)
+
+const phantonWalletAddress = await connect()
+```
+
 
 ## Internals
 

@@ -47,7 +47,6 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
         if (provider.session.namespaces.solana.accounts.length) {
           const [defaultAccount] = provider.session.namespaces.solana.accounts
           console.log('Found accounts', defaultAccount)
-          // eslint-disable-next-line prefer-destructuring
           const address = defaultAccount.split(':')[2]
           setAddress(address)
         }
