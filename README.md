@@ -25,7 +25,7 @@ the functions in its API.
 import { init } from 'solib'
 
 init({
-  // The different connector methodologies that will be used. 
+  // The different connector methodologies that will be used.
   // PhantomConnector will interact with injected Phantom Wallet using browser
   // extension, while WalletConnectConnector can be used to interact with all
   // wallets that support the WalletConnect protocol.
@@ -44,11 +44,11 @@ init({
       qrcode: true
     })
   ],
-  // Name of the connector to be used. 
+  // Name of the connector to be used.
   // The connector needs to be registered in the connectors field above.
   // This can be switched later using `switchConnector` function.
   connectorName: WalletConnectConnector.connectorName,
-  // The name of the cluster and network to use. 
+  // The name of the cluster and network to use.
   // Here, `mainnetBeta` refers to the mainnetBeta Solana network, while
   // `WalletConnect` is the RPC server thhat will be used to do the communication
   chosenCluster: mainnetBetaWalletConnect(PROJECT_ID)
@@ -56,6 +56,7 @@ init({
 ```
 
 ### Connect Wallet
+
 The connect function can be used to connect a wallet to a dApp. The wallet
 chosen needs to be configured in the `init` function above.
 
@@ -66,23 +67,26 @@ const address = await connect()
 ```
 
 ### Watch Address
+
 Instead of retrieving the address once on the connect function, one can globally
 watch address changes using the `watchAddress` API.
+
 ```ts
 import { watchAddress, connect } from 'solib'
 
-watchAddress((address) => {
-  console.log({address})
+watchAddress(address => {
+  console.log({ address })
 })
 
 connect()
 ```
 
 ### Get Balance
+
 ```ts
 import { getBalance } from 'solib'
 
-const connectedWalletBalance: number = await getBalance();
+const connectedWalletBalance: number = await getBalance()
 ```
 
 ### Sign Message
@@ -90,7 +94,7 @@ const connectedWalletBalance: number = await getBalance();
 ```ts
 import { signMessage } from 'solbi'
 
-const signature = await signMessage('Test');
+const signature = await signMessage('Test')
 ```
 
 ### Sign and Send Transaction
@@ -108,7 +112,7 @@ const transactionHash = signAndSendTransaction('transfer', {
 ### Watch Transaction
 
 ```ts
-import {signAndSendTransaction, watchTransaction} from 'solib'
+import { signAndSendTransaction, watchTransaction } from 'solib'
 
 const transactionHash = signAndSendTransaction('transfer', {
   to,
@@ -116,7 +120,7 @@ const transactionHash = signAndSendTransaction('transfer', {
   feePayer: 'from'
 })
 
-watchTransaction(transactionHash, (update) => console.log({update}))
+watchTransaction(transactionHash, update => console.log({ update }))
 ```
 
 ### Switch network
@@ -136,7 +140,6 @@ switchConnector(PhantomConnector.connectorName)
 
 const phantonWalletAddress = await connect()
 ```
-
 
 ## Internals
 
