@@ -1,4 +1,13 @@
-export { connect, init, signMessage, getBalance, getAddress, watchAddress } from './main'
+export { init, switchConnector } from './main'
+
+export {
+  connect,
+  getAddress,
+  getBalance,
+  signMessage,
+  switchNetwork,
+  watchAddress
+} from './accounts'
 
 export {
   signAndSendTransaction,

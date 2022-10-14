@@ -31,7 +31,7 @@ interface State {
   address?: string
 }
 
-const store: State = proxy({
+const store: State = proxy<State>({
   connectors: [],
   chosenCluster: {
     name: '',

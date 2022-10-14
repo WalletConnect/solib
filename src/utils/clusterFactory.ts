@@ -3,12 +3,10 @@ import { getCluster, getNewRequestId } from '../store'
 import type { ClusterSubscribeRequestMethods } from '../types/requests'
 import { waitForOpenConnection } from './websocket'
 
+type Listeners = Record<number, { callback: (params: unknown) => void; method: string; id: number }>
 let socket: WebSocket | undefined = undefined
-const listeners: Record<
-  number,
-  { callback: (params: unknown) => void; method: string; id: number }
-> = proxy({})
-const subIdToReqId: Record<number, number> = proxy({})
+const listeners: Listeners = proxy<Listeners>({})
+const subIdToReqId: Record<number, number> = proxy<Record<number, number>>({})
 
 export async function setSocket() {
   const cluster = getCluster()
