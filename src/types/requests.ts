@@ -24,6 +24,22 @@ export interface ClusterRequestMethods {
     }
   }
 
+  getProgramAccounts: {
+    params: string[]
+    returns: {
+      value: {
+        pubkey: string
+        account: {
+          data: string
+          executable: boolean
+          lamports: number
+          owner: string
+          rentEpoch: number
+        }
+      }
+    }
+  }
+
   getLatestBlockhash: {
     params: [{ commitment?: string }]
     returns: {
@@ -84,9 +100,18 @@ export interface RequestMethods {
 
 export interface TransactionArgs {
   transfer: {
-    to: string
-    amountInLamports: number
-    feePayer: 'from' | 'to'
+    params: {
+      to: string
+      amountInLamports: number
+      feePayer: 'from' | 'to'
+    }
+  }
+  program: {
+    params: {
+      programId: string
+      isWritableSender: boolean
+      data: Record<string, unknown>
+    }
   }
 }
 export type TransactionType = keyof TransactionArgs

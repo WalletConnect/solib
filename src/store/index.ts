@@ -27,6 +27,7 @@ interface State {
   connectorName: string
   chosenCluster: Cluster
   requestId: number
+  walletConnectProjectId: string
   socket?: WebSocket
   address?: string
 }
@@ -38,6 +39,7 @@ const store: State = proxy<State>({
     id: '',
     endpoint: ''
   },
+  walletConnectProjectId: '',
   requestId: 0,
   connectorName: ''
 })
@@ -115,6 +117,14 @@ export function getSocket() {
 
 export function setSocket(socket: WebSocket) {
   set('socket', socket)
+}
+
+export function setProjectId(projectId: string) {
+  set('walletConnectProjectId', projectId)
+}
+
+export function getProjectId() {
+  return get('walletConnectProjectId')
 }
 
 export function getConnectors() {

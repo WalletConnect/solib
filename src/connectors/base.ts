@@ -1,4 +1,11 @@
-import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
+import {
+  AccountMeta,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction
+} from '@solana/web3.js'
+import base58 from 'bs58'
 import { getAddress, getCluster, getNewRequestId } from '../store'
 import type {
   ClusterRequestMethods,
@@ -41,9 +48,9 @@ export class BaseConnector {
     return Promise.reject(new Error('No provider in base connector'))
   }
 
-  protected async constructTransaction<Type extends TransactionType>(
-    type: Type,
-    params: TransactionArgs[Type]
+  protected async constructTransaction<TransType extends keyof TransactionArgs>(
+    type: TransType,
+    params: TransactionArgs[TransType]['params']
   ) {
     const transaction = new Transaction()
 
@@ -51,20 +58,30 @@ export class BaseConnector {
 
     if (!fromAddress) throw new Error('No address connected')
     const fromPubkey = new PublicKey(fromAddress)
-    const toPubkey = new PublicKey(params.to)
 
-    switch (type) {
-      case 'transfer':
-        transaction.add(
-          SystemProgram.transfer({
-            fromPubkey,
-            toPubkey,
-            lamports: params.amountInLamports
-          })
-        )
-        transaction.feePayer = params.feePayer === 'from' ? fromPubkey : toPubkey
-        break
-      default:
+    if (type === 'transfer') {
+      const transferParams = params as TransactionArgs['transfer']['params']
+      const toPubkey = new PublicKey(transferParams.to)
+      transaction.add(
+        SystemProgram.transfer({
+          fromPubkey,
+          toPubkey: new PublicKey(transferParams.to),
+          lamports: transferParams.amountInLamports
+        })
+      )
+      transaction.feePayer = transferParams.feePayer === 'from' ? fromPubkey : toPubkey
+    } else if (type === 'program') {
+      const programParams = params as TransactionArgs['program']['params']
+      transaction.add(
+        new TransactionInstruction({
+          keys: [
+            { pubkey: fromPubkey, isSigner: true, isWritable: programParams.isWritableSender }
+          ],
+          programId: new PublicKey(programParams.programId),
+          data: Buffer.from(base58.decode(JSON.stringify(programParams.data)))
+        })
+      )
+      transaction.feePayer = fromPubkey
     }
 
     const { value } = await this.requestCluster('getLatestBlockhash', [{}])
@@ -95,6 +112,14 @@ export class BaseConnector {
 
     return balance.value
   }
+
+  public async getProgramAccounts(requestedAddress: string) {
+    const programAccounts = await this.requestCluster('getProgramAccounts', [requestedAddress])
+
+    return programAccounts.value
+  }
+
+  public async callProgram() {}
 
   public async request<Method extends keyof RequestMethods>(
     method: Method,
