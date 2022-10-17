@@ -1,5 +1,5 @@
 import { Connection, PublicKey } from '@solana/web3.js'
-import { mainnetBetaProjectSerum } from '../defaults/clusters'
+import { getCluster } from '../store'
 import { getFavoriteDomain, getAllDomains, performReverseLookup } from './spl'
 
 export interface FetchNameArgs {
@@ -33,7 +33,7 @@ async function getSolDomainsFromPublicKey(
  * @returns
  */
 export async function fetchName(args: FetchNameArgs): Promise<FetchNameResult> {
-  const connection = new Connection(mainnetBetaProjectSerum.endpoint, 'confirmed')
+  const connection = new Connection(getCluster().endpoint, 'confirmed')
   const address = new PublicKey(args.address)
 
   try {
