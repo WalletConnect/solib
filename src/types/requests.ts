@@ -1,64 +1,92 @@
+import type { Transaction } from '@solana/web3.js'
+
 export interface ClusterSubscribeRequestMethods {
   signatureSubscribe: {
-    params: Array<string>;
-    returns: any;
-  };
+    params: string[]
+    returns: Transaction
+  }
   signatureUnsubscribe: {
-    params: Array<number>;
-    returns: any;
-  };
+    params: number[]
+    returns: unknown
+  }
 }
 export interface ClusterRequestMethods {
   sendTransaction: {
     // Signed, serialized transaction
-    params: Array<string>;
-    returns: string;
-  };
+    params: string[]
+    returns: string
+  }
 
   getBalance: {
-    params: Array<string>;
+    params: string[]
     returns: {
-      value: number;
-    };
-  };
+      value: number
+    }
+  }
 
   getLatestBlockhash: {
-    params: [{ commitment?: string }];
+    params: [{ commitment?: string }]
     returns: {
       value: {
-        blockhash: string;
-      };
-    };
-  };
+        blockhash: string
+      }
+    }
+  }
+}
+
+export interface TransactionInstruction {
+  programId: string
+  data: string
+  keys: { isSigner: boolean; isWritable: boolean; pubkey: string }[]
 }
 
 export interface RequestMethods {
+  solana_signMessage: {
+    params: {
+      message: string
+      pubkey: string
+    }
+    returns: {
+      signature: string
+    }
+  }
+  solana_signTransaction: {
+    params: {
+      feePayer: string
+      instructions: TransactionInstruction[]
+      recentBlockhash: string
+      signatures?: { pubkey: string; signature: string }[]
+    }
+    returns: {
+      signature: string
+    }
+  }
   signMessage: {
     params: {
-      message: Uint8Array;
-      format: string;
-    };
+      message: Uint8Array
+      format: string
+    }
     returns: {
-      signature: string;
-    };
-  };
+      signature: string
+    }
+  }
 
   signTransaction: {
     params: {
       // Serialized transaction
-      message: string;
-    };
+      message: string
+    }
     returns: {
-      serialize: () => string;
-    };
-  };
+      serialize: () => string
+    }
+  }
 }
 
-export type TransactionArgs = {
+export interface TransactionArgs {
   transfer: {
-    to: string;
-    amountInLamports: number;
-    feePayer: "to" | "from";
-  };
-};
-export type TransactionType = keyof TransactionArgs;
+    to: string
+    amountInLamports: number
+    feePayer: 'from' | 'to'
+  }
+}
+export type TransactionType = keyof TransactionArgs

@@ -1,148 +1,145 @@
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-import { solanaClusters } from "../defaults/clusters";
-import Store from "../store";
-import {
+import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
+import { getAddress, getCluster, getNewRequestId } from '../store'
+import type {
   ClusterRequestMethods,
   ClusterSubscribeRequestMethods,
   RequestMethods,
   TransactionArgs,
-  TransactionType,
-} from "../types/requests";
-import { ClusterFactory } from "../utils/clusterFactory";
+  TransactionType
+} from '../types/requests'
+import { registerListener, unregisterListener } from '../utils/clusterFactory'
 
 export interface Connector {
-  isAvailable: () => boolean;
-  connect: () => Promise<string>;
-  signMessage: (message: string) => any;
+  isAvailable: () => boolean
+  getConnectorName: () => string
+  connect: () => Promise<string>
+  signMessage: (message: string) => Promise<string>
   signTransaction: <Type extends TransactionType>(
     type: Type,
     params: TransactionArgs[Type]
-  ) => Promise<string>;
-  sendTransaction: (encodedTransaction: string) => Promise<string>;
+  ) => Promise<string>
+  sendTransaction: (encodedTransaction: string) => Promise<string>
   signAndSendTransaction: <Type extends TransactionType>(
     type: Type,
     params: TransactionArgs[Type]
-  ) => Promise<string>;
-  getBalance: (requestedAddress?: string) => any;
+  ) => Promise<string>
+  getBalance: (requestedAddress?: string) => Promise<number | null>
   watchTransaction: (
     transactionSignature: string,
-    callback: (params: any) => void
-  ) => Promise<() => void>;
+    callback: (params: unknown) => void
+  ) => Promise<() => void>
 }
 
 export class BaseConnector {
-  protected getProvider(): {
-    request: (args: { method: any; params: any }) => any;
-  } | null {
-    return null;
+  public getConnectorName() {
+    return 'base'
+  }
+  protected async getProvider(): Promise<{
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    request: (args: any) => any
+  }> {
+    return Promise.reject(new Error('No provider in base connector'))
   }
 
   protected async constructTransaction<Type extends TransactionType>(
     type: Type,
     params: TransactionArgs[Type]
   ) {
-    const transaction = new Transaction();
+    const transaction = new Transaction()
 
-    const fromAddress = new Store().getAddress();
+    const fromAddress = getAddress()
 
-    if (!fromAddress) throw new Error("No address connected");
+    if (!fromAddress) throw new Error('No address connected')
+    const fromPubkey = new PublicKey(fromAddress)
+    const toPubkey = new PublicKey(params.to)
 
     switch (type) {
-      case "transfer":
-        const fromPubkey = new PublicKey(fromAddress);
-        const toPubkey = new PublicKey(params.to);
+      case 'transfer':
         transaction.add(
           SystemProgram.transfer({
             fromPubkey,
             toPubkey,
-            lamports: params.amountInLamports,
+            lamports: params.amountInLamports
           })
-        );
-        transaction.feePayer =
-          params.feePayer === "from" ? fromPubkey : toPubkey;
+        )
+        transaction.feePayer = params.feePayer === 'from' ? fromPubkey : toPubkey
+        break
+      default:
     }
 
-    let { value } = await this.requestCluster("getLatestBlockhash", [{}]);
-    const { blockhash: recentBlockhash } = value;
-    transaction.recentBlockhash = recentBlockhash;
+    const { value } = await this.requestCluster('getLatestBlockhash', [{}])
+    const { blockhash: recentBlockhash } = value
+    transaction.recentBlockhash = recentBlockhash
 
-    return transaction;
+    return transaction
   }
 
   public async sendTransaction(encodedTransaction: string) {
-    const signature = await this.requestCluster("sendTransaction", [
-      encodedTransaction,
-    ]);
+    const signature = await this.requestCluster('sendTransaction', [encodedTransaction])
 
-    return signature;
+    return signature
   }
 
   public async watchTransaction(
     transactionSignature: string,
-    callback: (params: any) => void
+    callback: (params: Transaction) => void
   ) {
-    return await this.subscribeToCluster(
-      "signatureSubscribe",
-      [transactionSignature],
-      callback
-    );
+    return this.subscribeToCluster('signatureSubscribe', [transactionSignature], callback)
   }
 
   public async getBalance(requestedAddress?: string) {
-    const address = requestedAddress ?? new Store().getAddress();
-    if (!address) return null;
+    const address = requestedAddress ?? getAddress()
+    if (!address) return null
 
-    const balance = await this.requestCluster("getBalance", [address]);
+    const balance = await this.requestCluster('getBalance', [address])
 
-    return balance.value;
+    return balance.value
   }
 
   public async request<Method extends keyof RequestMethods>(
     method: Method,
-    params: RequestMethods[Method]["params"]
-  ): Promise<RequestMethods[Method]["returns"]> {
-    return this.getProvider()?.request({ method, params });
+    params: RequestMethods[Method]['params']
+  ): Promise<RequestMethods[Method]['returns']> {
+    return (await this.getProvider()).request({ method, params })
   }
 
-  public async subscribeToCluster<
-    Method extends keyof ClusterSubscribeRequestMethods
-  >(
+  public async subscribeToCluster<Method extends keyof ClusterSubscribeRequestMethods>(
     method: Method,
-    params: ClusterSubscribeRequestMethods[Method]["returns"],
-    callback: (params: any) => void
+    params: ClusterSubscribeRequestMethods[Method]['params'],
+    callback: (params: ClusterSubscribeRequestMethods[Method]['returns']) => void
   ) {
-    const id = await ClusterFactory.registerListener(method, params, callback);
+    const id = await registerListener(method, params, callback)
 
-    return async () => {
-      await ClusterFactory.unregisterListener(id);
-    };
+    return () => {
+      unregisterListener(id)
+    }
   }
 
   public async requestCluster<Method extends keyof ClusterRequestMethods>(
     method: Method,
-    params: ClusterRequestMethods[Method]["params"]
-  ): Promise<ClusterRequestMethods[Method]["returns"]> {
-    const cluster = new Store().getCluster();
-    const endpoint = solanaClusters[cluster].endpoint;
-    const res: { result: ClusterRequestMethods[Method]["returns"] } =
-      await fetch(endpoint, {
-        method: "post",
-        body: JSON.stringify({
-          method,
-          params,
-          jsonrpc: "2.0",
-          id: new Store().getNewRequestId(),
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then(async (res) => {
-        const json = await res.json();
+    params: ClusterRequestMethods[Method]['params']
+  ): Promise<ClusterRequestMethods[Method]['returns']> {
+    const cluster = getCluster()
+    const { endpoint } = cluster
+    const res: { result: ClusterRequestMethods[Method]['returns'] } = await fetch(endpoint, {
+      method: 'post',
+      body: JSON.stringify({
+        method,
+        params,
+        jsonrpc: '2.0',
+        id: getNewRequestId()
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(async httpRes => {
+      const json = await httpRes.json()
 
-        console.log({ json });
-        return json;
-      });
+      console.log({ json })
 
-    return res.result;
+      return json
+    })
+
+    return res.result
   }
 }

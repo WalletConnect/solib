@@ -1,30 +1,11 @@
-import Store, { StoreConfig } from "../store";
-import { polyfill } from "../utils/buffer";
-import { withConnector } from "../utils/connector";
+import type { StoreConfig } from '../store'
+import { setConnectorName } from '../store'
+import { initStore } from '../store'
 
 export function init(config: StoreConfig) {
-  polyfill();
-  new Store(config);
+  initStore(config)
 }
 
-export async function connect() {
-  return withConnector(async (connector) => {
-    return await connector.connect();
-  });
-}
-
-export async function signMessage(message: string) {
-  return withConnector(async (connector) => {
-    return await connector.signMessage(message);
-  });
-}
-
-export async function getBalance(requestedAddress?: string) {
-  return withConnector(async (connector) => {
-    return await connector.getBalance(requestedAddress);
-  });
-}
-
-export async function getAddress() {
-  return new Store().getAddress();
+export function switchConnector(connectorName: string) {
+  setConnectorName(connectorName)
 }

@@ -1,24 +1,27 @@
-import { Cluster } from "../types/cluster";
+import type { Cluster } from '../types/cluster'
 
-export const mainnetBeta: Cluster = {
-  name: "mainnetBeta",
-  endpoint: "https://api.mainnet-beta.solana.com",
-};
+export const mainnetBetaProjectSerum: Cluster = {
+  name: 'mainnetBeta',
+  id: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ',
+  endpoint: `https://solana-api.projectserum.com`
+}
+
+export function mainnetBetaWalletConnect(projectId: string) {
+  return {
+    name: 'mainnetBeta',
+    id: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ',
+    endpoint: `https://rpc.walletconnect.com/v1?chainId=solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ&projectId=${projectId}`
+  }
+}
 
 export const testnet: Cluster = {
-  name: "testnet",
-  endpoint: "https://api.testnet.solana.com",
-};
+  name: 'testnet',
+  id: '8E9rvCKLFQia2Y35HXjjpWzj8weVo44K',
+  endpoint: 'https://api.testnet.solana.com'
+}
 
 export const devnet: Cluster = {
-  name: "devnet",
-  endpoint: "https://api.devnet.solana.com",
-};
-
-export const solanaClusters = {
-  mainnetBeta,
-  testnet,
-  devnet,
-};
-
-export type ClusterName = keyof typeof solanaClusters;
+  name: 'devnet',
+  id: '8E9rvCKLFQia2Y35HXjjpWzj8weVo44K',
+  endpoint: 'https://api.devnet.solana.com'
+}

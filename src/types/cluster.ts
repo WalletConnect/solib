@@ -1,4 +1,5 @@
 export interface Cluster {
-  name: string;
-  endpoint: string;
+  name: string
+  id: string
+  endpoint: string
 }
