@@ -29,17 +29,6 @@ export class NameRegistry {
     this.class = new PublicKey(obj.class)
   }
 
-  public static async retrieve(connection: Connection, nameAccountKey: PublicKey) {
-    const nameAccount = await connection.getAccountInfo(nameAccountKey)
-    if (!nameAccount) throw new Error('Invalid name account provided')
-
-    const res: NameRegistry = deserializeUnchecked(this.schema, NameRegistry, nameAccount.data)
-
-    res.data = nameAccount.data.slice(this.HEADER_LEN)
-
-    return { registry: res }
-  }
-
   public static async retrieveBatch(connection: Connection, nameAccountKeys: PublicKey[]) {
     const nameAccounts = await connection.getMultipleAccountsInfo(nameAccountKeys)
     const fn = (data: Buffer | undefined) => {

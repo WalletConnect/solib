@@ -1,20 +1,23 @@
-import {
-  AccountMeta,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  TransactionInstruction
-} from '@solana/web3.js'
+import { PublicKey, SystemProgram, Transaction, TransactionInstruction } from '@solana/web3.js'
+import BN from 'bn.js'
 import base58 from 'bs58'
+import {
+  NAME_OFFERS_ID,
+  NAME_PROGRAM_ID,
+  REVERSE_LOOKUP_CLASS,
+  ROOT_DOMAIN_ACCOUNT
+} from '../constants/splNameService'
 import { getAddress, getCluster, getNewRequestId } from '../store'
 import type {
   ClusterRequestMethods,
   ClusterSubscribeRequestMethods,
+  FilterObject,
   RequestMethods,
   TransactionArgs,
   TransactionType
 } from '../types/requests'
 import { registerListener, unregisterListener } from '../utils/clusterFactory'
+import { getHashedName, getNameAccountKey } from '../utils/hash'
 
 export interface Connector {
   isAvailable: () => boolean
@@ -35,6 +38,8 @@ export interface Connector {
     transactionSignature: string,
     callback: (params: unknown) => void
   ) => Promise<() => void>
+  getSolDomainsFromPublicKey: (address: string) => Promise<string[]>
+  getFavoriteDomain: (address: string) => Promise<string>
 }
 
 export class BaseConnector {
@@ -113,13 +118,74 @@ export class BaseConnector {
     return balance.value
   }
 
-  public async getProgramAccounts(requestedAddress: string) {
-    const programAccounts = await this.requestCluster('getProgramAccounts', [requestedAddress])
+  public async getProgramAccounts(requestedAddress: string, filters?: FilterObject[]) {
+    const programAccounts = await this.requestCluster('getProgramAccounts', [
+      requestedAddress,
+      filters ?? []
+    ])
 
     return programAccounts.value
   }
 
-  public async callProgram() {}
+  public async getAllDomains(address: string) {
+    const accounts = await this.getProgramAccounts(NAME_PROGRAM_ID.toBase58(), [
+      {
+        memcmp: {
+          offset: 32,
+          bytes: address
+        }
+      },
+      {
+        memcmp: {
+          offset: 0,
+          bytes: ROOT_DOMAIN_ACCOUNT.toBase58()
+        }
+      }
+    ])
+
+    return accounts.map(({ pubkey }) => pubkey)
+  }
+
+  public async retrieve(nameAccountKey: string) {
+    const nameAccount = await this.requestCluster('getAccountInfo', [nameAccountKey])
+    if (!nameAccount) throw new Error('Invalid name account provided')
+
+    return nameAccount.account
+  }
+
+  public async performReverseLookup(address: string) {
+    const hashedReverseLookup = getHashedName(address)
+    const reverseLookupAccount = await getNameAccountKey(hashedReverseLookup, REVERSE_LOOKUP_CLASS)
+
+    const account = await this.retrieve(reverseLookupAccount.toBase58())
+
+    const nameLength = new BN(account.data.slice(0, 4), 'le').toNumber()
+
+    return `${account.data.slice(4, 4 + nameLength).toString()}.sol`
+  }
+
+  public async getSolDomainsFromPublicKey(address: string): Promise<string[]> {
+    const allDomainKeys = await this.getAllDomains(address)
+    const allDomainNames = await Promise.all(
+      allDomainKeys.map(async (key: string) => {
+        return this.performReverseLookup(key)
+      })
+    )
+
+    return allDomainNames
+  }
+
+  public async getFavoriteDomain(address: string) {
+    const [favKey] = await PublicKey.findProgramAddress(
+      [Buffer.from('favorite_domain'), new PublicKey(address).toBuffer()],
+      NAME_OFFERS_ID
+    )
+    const favorite = await this.retrieve(favKey.toBase58())
+    console.log({ favorite })
+    const reverse = await this.performReverseLookup(favorite.data)
+
+    return { domain: 'domain', reverse }
+  }
 
   public async request<Method extends keyof RequestMethods>(
     method: Method,
@@ -139,7 +205,6 @@ export class BaseConnector {
       unregisterListener(id)
     }
   }
-
   public async requestCluster<Method extends keyof ClusterRequestMethods>(
     method: Method,
     params: ClusterRequestMethods[Method]['params']

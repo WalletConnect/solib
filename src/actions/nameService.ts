@@ -1,6 +1,6 @@
 import { Connection, PublicKey } from '@solana/web3.js'
 import { getCluster } from '../store'
-import { getFavoriteDomain, getAllDomains, performReverseLookup } from './spl'
+import { withConnector } from '../utils/connector'
 
 export interface FetchNameArgs {
   address: string
@@ -8,18 +8,10 @@ export interface FetchNameArgs {
 
 export type FetchNameResult = string | null
 
-async function getSolDomainsFromPublicKey(
-  connection: Connection,
-  wallet: PublicKey
-): Promise<string[]> {
-  const allDomainKeys = await getAllDomains(connection, wallet)
-  const allDomainNames = await Promise.all(
-    allDomainKeys.map(async (key: PublicKey) => {
-      return performReverseLookup(connection, key)
-    })
-  )
-
-  return allDomainNames
+export async function getSolDomainsFromPublicKey(address: string) {
+  return withConnector(async connector => {
+    return connector.getSolDomainsFromPublicKey(address)
+  })
 }
 
 /**
@@ -28,21 +20,11 @@ async function getSolDomainsFromPublicKey(
  * This feature doesn't appear to commonly be used hence
  * if none is set we try to capture other domains associated to the
  * account and use the first one that pops up.
- * @param connection The Solana RPC connection object
- * @param owner The owner you want to retrieve the favorite domain for
+ * @param address Base 58 encoded address
  * @returns
  */
-export async function fetchName(args: FetchNameArgs): Promise<FetchNameResult> {
-  const connection = new Connection(getCluster().endpoint, 'confirmed')
-  const address = new PublicKey(args.address)
-
-  try {
-    return (await getFavoriteDomain(connection, address)).reverse
-  } catch (e) {
-    console.log({ e })
-  }
-
-  const otherDomains = await getSolDomainsFromPublicKey(connection, address)
-
-  return otherDomains.length > 0 ? otherDomains[0] : null
+export async function fetchName(address: string): Promise<FetchNameResult> {
+  return withConnector(async connector => {
+    return connector.getFavoriteDomain(address)
+  })
 }

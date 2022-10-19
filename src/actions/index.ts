@@ -16,4 +16,4 @@ export {
   watchTransaction
 } from './transactions'
 
-export { fetchName } from './nameService'
+export { fetchName, getSolDomainsFromPublicKey } from './nameService'

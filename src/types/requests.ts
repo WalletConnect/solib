@@ -1,5 +1,26 @@
 import type { Transaction } from '@solana/web3.js'
 
+export interface AccountInfo {
+  pubkey: string
+  account: {
+    data: string
+    executable: boolean
+    lamports: number
+    owner: string
+    rentEpoch: number
+  }
+}
+
+export type FilterObject =
+  | {
+      memcmp: {
+        offset: number
+        bytes: string
+        encoding?: string
+      }
+    }
+  | { dataSize: number }
+
 export interface ClusterSubscribeRequestMethods {
   signatureSubscribe: {
     params: string[]
@@ -25,19 +46,15 @@ export interface ClusterRequestMethods {
   }
 
   getProgramAccounts: {
-    params: string[]
+    params: [string, FilterObject[]]
     returns: {
-      value: {
-        pubkey: string
-        account: {
-          data: string
-          executable: boolean
-          lamports: number
-          owner: string
-          rentEpoch: number
-        }
-      }
+      value: AccountInfo[]
     }
+  }
+
+  getAccountInfo: {
+    params: [string]
+    returns: AccountInfo | null
   }
 
   getLatestBlockhash: {
