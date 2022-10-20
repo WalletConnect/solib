@@ -6,6 +6,7 @@ import {
   signAndSendTransaction,
   watchAddress,
   watchTransaction,
+  getSolDomainsFromPublicKey,
   fetchName
 } from 'solib'
 import { useCallback, useEffect, useState } from 'react'
@@ -23,7 +24,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 
-const Home: NextPage = () => {
+function Home(): NextPage {
   const toast = useToast()
   const [address, setAddress] = useState<string | undefined>('')
   const [name, setName] = useState<string | undefined>('')
@@ -44,8 +45,9 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (address) {
       getBalance().then(value => setBalance((value && value.toString()) || '0'))
-      fetchName({ address }).then(name => {
-        setName(name || address!)
+      fetchName('FidaeBkZkvDqi1GXNEwB8uWmj9Ngx2HXSS5nyGRuVFcZ').then(name => {
+        console.log({ name })
+        setName(name.reverse || address!)
       })
     }
   }, [address])

@@ -3,7 +3,7 @@ import { withConnector } from '../utils/connector'
 
 export async function signTransaction<Type extends TransactionType>(
   type: Type,
-  transactionArgs: TransactionArgs[Type]
+  transactionArgs: TransactionArgs[Type]['params']
 ) {
   return withConnector(async connector => {
     return connector.signTransaction(type, transactionArgs)
@@ -18,7 +18,7 @@ export async function sendTransaction(encodedTransaction: string) {
 
 export async function signAndSendTransaction<Type extends TransactionType>(
   type: Type,
-  transactionArgs: TransactionArgs[Type]
+  transactionArgs: TransactionArgs[Type]['params']
 ) {
   return withConnector(async connector => {
     return connector.signAndSendTransaction(type, transactionArgs)

@@ -81,9 +81,9 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     return signature
   }
 
-  public async signTransaction<Type extends TransactionType>(
+  public async signTransaction<Type extends keyof TransactionArgs>(
     type: Type,
-    params: TransactionArgs[Type]
+    params: TransactionArgs[Type]['params']
   ) {
     const transaction = await this.constructTransaction(type, params)
     console.log('Made transaction', transaction)
@@ -121,7 +121,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
 
   public async signAndSendTransaction<Type extends TransactionType>(
     type: Type,
-    params: TransactionArgs[Type]
+    params: TransactionArgs[Type]['params']
   ) {
     return this.sendTransaction(await this.signTransaction(type, params))
   }

@@ -1,4 +1,10 @@
-import { PublicKey, SystemProgram, Transaction, TransactionInstruction } from '@solana/web3.js'
+import {
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction
+} from '@solana/web3.js'
 import BN from 'bn.js'
 import base58 from 'bs58'
 import {
@@ -18,6 +24,8 @@ import type {
 } from '../types/requests'
 import { registerListener, unregisterListener } from '../utils/clusterFactory'
 import { getHashedName, getNameAccountKey } from '../utils/hash'
+import borsh from 'borsh'
+import { FavouriteDomain, NameRegistry } from '../utils/nameService'
 
 export interface Connector {
   isAvailable: () => boolean
@@ -26,12 +34,12 @@ export interface Connector {
   signMessage: (message: string) => Promise<string>
   signTransaction: <Type extends TransactionType>(
     type: Type,
-    params: TransactionArgs[Type]
+    params: TransactionArgs[Type]['params']
   ) => Promise<string>
   sendTransaction: (encodedTransaction: string) => Promise<string>
   signAndSendTransaction: <Type extends TransactionType>(
     type: Type,
-    params: TransactionArgs[Type]
+    params: TransactionArgs[Type]['params']
   ) => Promise<string>
   getBalance: (requestedAddress?: string) => Promise<number | null>
   watchTransaction: (
@@ -39,7 +47,7 @@ export interface Connector {
     callback: (params: unknown) => void
   ) => Promise<() => void>
   getSolDomainsFromPublicKey: (address: string) => Promise<string[]>
-  getFavoriteDomain: (address: string) => Promise<string>
+  getFavoriteDomain: (address: string) => Promise<{ domain: PublicKey; reverse: string }>
 }
 
 export class BaseConnector {
@@ -89,8 +97,9 @@ export class BaseConnector {
       transaction.feePayer = fromPubkey
     }
 
-    const { value } = await this.requestCluster('getLatestBlockhash', [{}])
-    const { blockhash: recentBlockhash } = value
+    const response = await this.requestCluster('getLatestBlockhash', [{}])
+
+    const { blockhash: recentBlockhash } = response.value
     transaction.recentBlockhash = recentBlockhash
 
     return transaction
@@ -143,25 +152,46 @@ export class BaseConnector {
       }
     ])
 
-    return accounts.map(({ pubkey }) => pubkey)
+    return accounts.map(({ pubkey }: any) => pubkey)
   }
 
-  public async retrieve(nameAccountKey: string) {
-    const nameAccount = await this.requestCluster('getAccountInfo', [nameAccountKey])
-    if (!nameAccount) throw new Error('Invalid name account provided')
+  public async retrieve(
+    nameAccountKey: string,
+    encoding: 'base58' | 'base64' | 'jsonParsed' = 'base58'
+  ) {
+    const response = await this.requestCluster('getAccountInfo', [
+      nameAccountKey,
+      {
+        encoding
+      }
+    ])
 
-    return nameAccount.account
+    if (!response) throw new Error('Invalid name account provided')
+
+    const { value: nameAccount } = response
+
+    return nameAccount
   }
 
   public async performReverseLookup(address: string) {
     const hashedReverseLookup = getHashedName(address)
     const reverseLookupAccount = await getNameAccountKey(hashedReverseLookup, REVERSE_LOOKUP_CLASS)
 
-    const account = await this.retrieve(reverseLookupAccount.toBase58())
+    const account = await this.retrieve(reverseLookupAccount.toBase58(), 'base64')
 
-    const nameLength = new BN(account.data.slice(0, 4), 'le').toNumber()
+    if (account) {
+      const dataBuffer = Buffer.from(account.data[0], 'base64')
+      const deserialized = borsh.deserializeUnchecked(NameRegistry.schema, NameRegistry, dataBuffer)
 
-    return `${account.data.slice(4, 4 + nameLength).toString()}.sol`
+      deserialized.data = dataBuffer.slice(96)
+
+      const nameLength = new BN(deserialized.data.slice(0, 4), 'le').toNumber()
+      const name = `${deserialized.data.slice(4, 4 + nameLength).toString()}.sol`
+
+      return name
+    }
+
+    throw new Error(`Failed to perform reverse lookup on ${address}`)
   }
 
   public async getSolDomainsFromPublicKey(address: string): Promise<string[]> {
@@ -176,15 +206,27 @@ export class BaseConnector {
   }
 
   public async getFavoriteDomain(address: string) {
+    const domainBuffer = Buffer.from('favourite_domain')
+    const pubkeyBuffer = new PublicKey(address).toBuffer()
     const [favKey] = await PublicKey.findProgramAddress(
-      [Buffer.from('favorite_domain'), new PublicKey(address).toBuffer()],
+      [domainBuffer, pubkeyBuffer],
       NAME_OFFERS_ID
     )
-    const favorite = await this.retrieve(favKey.toBase58())
-    console.log({ favorite })
-    const reverse = await this.performReverseLookup(favorite.data)
 
-    return { domain: 'domain', reverse }
+    const favoriteDomainAccInfo = await this.retrieve(favKey.toBase58(), 'base64')
+
+    if (!favoriteDomainAccInfo) throw new Error(`Failed to retrieve favorite domain for ${address}`)
+    const favoriteDomainData = borsh.deserialize(
+      FavouriteDomain.schema,
+      FavouriteDomain,
+      Buffer.from(favoriteDomainAccInfo.data[0], 'base64')
+    )
+
+    const reverse = await this.performReverseLookup(favoriteDomainData.nameAccount.toBase58())
+
+    const result = { domain: favoriteDomainData.nameAccount, reverse }
+
+    return result
   }
 
   public async request<Method extends keyof RequestMethods>(

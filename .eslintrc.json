@@ -23,6 +23,7 @@
     "sort-keys": "off",
     "id-length": "off",
     "no-ternary": "off",
+		"max-classes-per-file": "off",
     "max-lines-per-function": "off",
     "max-statements": "off",
     "no-undefined": "off",

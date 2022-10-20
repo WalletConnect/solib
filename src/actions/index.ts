@@ -1,5 +1,4 @@
 export { init, switchConnector } from './main'
-
 export {
   connect,
   getAddress,

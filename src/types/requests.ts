@@ -1,14 +1,11 @@
 import type { Transaction } from '@solana/web3.js'
 
 export interface AccountInfo {
-  pubkey: string
-  account: {
-    data: string
-    executable: boolean
-    lamports: number
-    owner: string
-    rentEpoch: number
-  }
+  data: string[]
+  executable: boolean
+  lamports: number
+  owner: string
+  rentEpoch: number
 }
 
 export type FilterObject =
@@ -53,8 +50,10 @@ export interface ClusterRequestMethods {
   }
 
   getAccountInfo: {
-    params: [string]
-    returns: AccountInfo | null
+    params: [string, { encoding: 'base58' | 'base64' | 'jsonParsed' }] | [string]
+    returns?: {
+      value: AccountInfo | null
+    }
   }
 
   getLatestBlockhash: {

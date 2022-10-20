@@ -3,9 +3,7 @@ import type { AppProps } from 'next/app'
 import { init, mainnetBetaWalletConnect, PhantomConnector, WalletConnectConnector } from 'solib'
 import { ColorModeProvider, ChakraProvider } from '@chakra-ui/react'
 
-const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID!
-
-console.log({ PROJECT_ID })
+const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID
 
 init(
   () => ({

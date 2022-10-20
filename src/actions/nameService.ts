@@ -1,12 +1,11 @@
-import { Connection, PublicKey } from '@solana/web3.js'
-import { getCluster } from '../store'
+import type { PublicKey } from '@solana/web3.js'
 import { withConnector } from '../utils/connector'
 
 export interface FetchNameArgs {
   address: string
 }
 
-export type FetchNameResult = string | null
+export type FetchNameResult = { domain: PublicKey; reverse: string } | null
 
 export async function getSolDomainsFromPublicKey(address: string) {
   return withConnector(async connector => {
