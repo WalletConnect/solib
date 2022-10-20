@@ -1,10 +1,4 @@
-import {
-  Connection,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  TransactionInstruction
-} from '@solana/web3.js'
+import { PublicKey, SystemProgram, Transaction, TransactionInstruction } from '@solana/web3.js'
 import BN from 'bn.js'
 import base58 from 'bs58'
 import {
