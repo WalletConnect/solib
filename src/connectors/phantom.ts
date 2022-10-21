@@ -66,7 +66,7 @@ export class PhantomConnector extends BaseConnector implements Connector {
 
   public async signTransaction<Type extends TransactionType>(
     type: Type,
-    params: TransactionArgs[Type]
+    params: TransactionArgs[Type]['params']
   ) {
     const transaction = await this.constructTransaction(type, params)
 
@@ -77,7 +77,7 @@ export class PhantomConnector extends BaseConnector implements Connector {
 
   public async signAndSendTransaction<Type extends TransactionType>(
     type: Type,
-    params: TransactionArgs[Type]
+    params: TransactionArgs[Type]['params']
   ) {
     return this.sendTransaction(await this.signTransaction(type, params))
   }

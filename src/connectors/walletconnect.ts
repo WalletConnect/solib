@@ -6,7 +6,7 @@ import type { TransactionArgs, TransactionType } from '../types/requests'
 import base58 from 'bs58'
 import { PublicKey } from '@solana/web3.js'
 import { UniversalProviderFactory } from '../utils/universalProvider'
-import { getAddress, getCluster, setAddress } from '../store'
+import { getAddress, getCluster, getProjectId, setAddress } from '../store'
 
 export interface WalletConnectAppMetadata {
   name: string
@@ -20,13 +20,11 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
   protected qrcode: boolean
 
   public constructor({
-    projectId,
     relayerRegion,
     metadata,
     qrcode,
     autoconnect
   }: {
-    projectId: string
     relayerRegion: string
     metadata: WalletConnectAppMetadata
     qrcode?: boolean
@@ -35,7 +33,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     super()
     this.qrcode = Boolean(qrcode)
     UniversalProviderFactory.setSettings({
-      projectId,
+      projectId: getProjectId(),
       relayerRegion,
       metadata,
       qrcode: this.qrcode
@@ -83,9 +81,9 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     return signature
   }
 
-  public async signTransaction<Type extends TransactionType>(
+  public async signTransaction<Type extends keyof TransactionArgs>(
     type: Type,
-    params: TransactionArgs[Type]
+    params: TransactionArgs[Type]['params']
   ) {
     const transaction = await this.constructTransaction(type, params)
     console.log('Made transaction', transaction)
@@ -123,7 +121,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
 
   public async signAndSendTransaction<Type extends TransactionType>(
     type: Type,
-    params: TransactionArgs[Type]
+    params: TransactionArgs[Type]['params']
   ) {
     return this.sendTransaction(await this.signTransaction(type, params))
   }

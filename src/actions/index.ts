@@ -1,5 +1,4 @@
 export { init, switchConnector } from './main'
-
 export {
   connect,
   getAddress,
@@ -16,4 +15,4 @@ export {
   watchTransaction
 } from './transactions'
 
-export { fetchName } from './nameService'
+export { fetchName, getSolDomainsFromPublicKey } from './nameService'

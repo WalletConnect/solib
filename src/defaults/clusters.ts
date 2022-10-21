@@ -1,3 +1,4 @@
+import { getProjectId } from '../store'
 import type { Cluster } from '../types/cluster'
 
 export const mainnetBetaProjectSerum: Cluster = {
@@ -6,11 +7,11 @@ export const mainnetBetaProjectSerum: Cluster = {
   endpoint: `https://solana-api.projectserum.com`
 }
 
-export function mainnetBetaWalletConnect(projectId: string) {
+export function mainnetBetaWalletConnect() {
   return {
     name: 'mainnetBeta',
     id: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ',
-    endpoint: `https://rpc.walletconnect.com/v1?chainId=solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ&projectId=${projectId}`
+    endpoint: `https://rpc.walletconnect.com/v1?chainId=solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ&projectId=${getProjectId()}`
   }
 }
 

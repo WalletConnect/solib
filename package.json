@@ -10,7 +10,7 @@
   "module": "./dist/solib.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build --watch",
     "build": "tsc && vite build && tsc --emitDeclarationOnly",
     "preview": "vite preview",
     "lint": "eslint src/**/*.ts",

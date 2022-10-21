@@ -1,5 +1,23 @@
 import type { Transaction } from '@solana/web3.js'
 
+export interface AccountInfo {
+  data: string[]
+  executable: boolean
+  lamports: number
+  owner: string
+  rentEpoch: number
+}
+
+export type FilterObject =
+  | {
+      memcmp: {
+        offset: number
+        bytes: string
+        encoding?: string
+      }
+    }
+  | { dataSize: number }
+
 export interface ClusterSubscribeRequestMethods {
   signatureSubscribe: {
     params: string[]
@@ -21,6 +39,20 @@ export interface ClusterRequestMethods {
     params: string[]
     returns: {
       value: number
+    }
+  }
+
+  getProgramAccounts: {
+    params: [string, FilterObject[]]
+    returns: {
+      value: AccountInfo[]
+    }
+  }
+
+  getAccountInfo: {
+    params: [string, { encoding: 'base58' | 'base64' | 'jsonParsed' }] | [string]
+    returns?: {
+      value: AccountInfo | null
     }
   }
 
@@ -84,9 +116,18 @@ export interface RequestMethods {
 
 export interface TransactionArgs {
   transfer: {
-    to: string
-    amountInLamports: number
-    feePayer: 'from' | 'to'
+    params: {
+      to: string
+      amountInLamports: number
+      feePayer: 'from' | 'to'
+    }
+  }
+  program: {
+    params: {
+      programId: string
+      isWritableSender: boolean
+      data: Record<string, unknown>
+    }
   }
 }
 export type TransactionType = keyof TransactionArgs
