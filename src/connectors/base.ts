@@ -41,7 +41,7 @@ export interface Connector {
     callback: (params: unknown) => void
   ) => Promise<() => void>
   getSolDomainsFromPublicKey: (address: string) => Promise<string[]>
-  getFavoriteDomain: (address: string) => Promise<{ domain: PublicKey; reverse: string }>
+  getFavoriteDomain: (address: string) => Promise<{ domain: PublicKey; reverse: string } | null>
 }
 
 export class BaseConnector {
@@ -209,7 +209,7 @@ export class BaseConnector {
 
     const favoriteDomainAccInfo = await this.retrieve(favKey.toBase58(), 'base64')
 
-    if (!favoriteDomainAccInfo) throw new Error(`Failed to retrieve favorite domain for ${address}`)
+    if (!favoriteDomainAccInfo) return null
     const favoriteDomainData = borsh.deserialize(
       FavouriteDomain.schema,
       FavouriteDomain,
