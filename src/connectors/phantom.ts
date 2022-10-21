@@ -1,9 +1,7 @@
 import type { Transaction } from '@solana/web3.js'
-import base58 from 'bs58'
-import { setAddress } from '../store'
-import type { RequestMethods, TransactionArgs, TransactionType } from '../types/requests'
+import type { RequestMethods } from '../types/requests'
 import type { Connector } from './base'
-import { BaseConnector } from './base'
+import { InjectedConnector } from './injected'
 
 export interface PhantomPublicKey {
   length: number
@@ -11,6 +9,8 @@ export interface PhantomPublicKey {
   words: Uint8Array
   toString: () => string
 }
+
+const PHANTOM_WALLET_PATH = `window.phantom.solana`
 
 declare global {
   interface Window {
@@ -29,56 +29,13 @@ declare global {
     }
   }
 }
-export class PhantomConnector extends BaseConnector implements Connector {
-  public static readonly connectorName = 'phantom'
 
-  public geConnectortName(): string {
-    return PhantomConnector.connectorName
-  }
-  protected async getProvider() {
-    if (typeof window !== 'undefined' && window.phantom)
-      return Promise.resolve(window.phantom.solana)
-
-    throw new Error('No Phantom provider found')
+export class PhantomConnector extends InjectedConnector implements Connector {
+  public constructor() {
+    super(PHANTOM_WALLET_PATH)
   }
 
-  public isAvailable(): boolean {
-    return Boolean(this.getProvider())
-  }
-
-  public async connect() {
-    const resp = await (await this.getProvider()).connect()
-    setAddress(resp.publicKey.toString())
-
-    return resp.publicKey.toString()
-  }
-
-  public async signMessage(message: string) {
-    const encodedMessage = new TextEncoder().encode(message)
-    const signedMessage = await this.request('signMessage', {
-      message: encodedMessage,
-      format: 'utf8'
-    })
-    const { signature } = signedMessage
-
-    return signature
-  }
-
-  public async signTransaction<Type extends TransactionType>(
-    type: Type,
-    params: TransactionArgs[Type]['params']
-  ) {
-    const transaction = await this.constructTransaction(type, params)
-
-    const signedTransaction = await (await this.getProvider()).signTransaction(transaction)
-
-    return base58.encode(signedTransaction.serialize())
-  }
-
-  public async signAndSendTransaction<Type extends TransactionType>(
-    type: Type,
-    params: TransactionArgs[Type]['params']
-  ) {
-    return this.sendTransaction(await this.signTransaction(type, params))
+  public static connectorName() {
+    return super.connectorName(PHANTOM_WALLET_PATH)
   }
 }
