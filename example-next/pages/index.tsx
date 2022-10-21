@@ -6,7 +6,6 @@ import {
   signAndSendTransaction,
   watchAddress,
   watchTransaction,
-  getSolDomainsFromPublicKey,
   fetchName
 } from 'solib'
 import { useCallback, useEffect, useState } from 'react'
@@ -45,7 +44,7 @@ function Home(): NextPage {
   useEffect(() => {
     if (address) {
       getBalance().then(value => setBalance((value && value.toString()) || '0'))
-      fetchName(address).then(name => {
+      fetchName('FidaeBkZkvDqi1GXNEwB8uWmj9Ngx2HXSS5nyGRuVFcZ').then(name => {
         setName(name?.reverse || address!)
       })
     }

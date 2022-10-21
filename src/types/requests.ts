@@ -100,7 +100,7 @@ export interface RequestMethods {
     }
     returns: {
       signature: string
-    }
+    } | null
   }
 
   signTransaction: {
@@ -110,7 +110,7 @@ export interface RequestMethods {
     }
     returns: {
       serialize: () => string
-    }
+    } | null
   }
 }
 

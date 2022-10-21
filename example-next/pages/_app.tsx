@@ -27,7 +27,7 @@ init(
           icons: ['https://avatars.githubusercontent.com/u/37784886'],
           url: 'http://localhost:3000'
         },
-        autoconnect: false,
+        autoconnect: true,
         qrcode: true
       })
     ],

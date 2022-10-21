@@ -83,6 +83,9 @@ export class InjectedConnector extends BaseConnector implements Connector {
       message: encodedMessage,
       format: 'utf8'
     })
+
+    if (!signedMessage) throw new Error(`Failed to sign message using ${this.getConnectorName()}`)
+
     const { signature } = signedMessage
 
     return signature
@@ -96,7 +99,8 @@ export class InjectedConnector extends BaseConnector implements Connector {
 
     const signedTransaction = await (await this.getProvider()).signTransaction(transaction)
 
-    return base58.encode(signedTransaction.serialize())
+    if (signedTransaction) return base58.encode(signedTransaction.serialize())
+    else throw new Error(`Could not sign transaction using ${this.getConnectorName()}`)
   }
 
   public async signAndSendTransaction<Type extends TransactionType>(
