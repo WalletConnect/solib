@@ -3,6 +3,14 @@
   "description": "Solana development utilities and wrappers",
   "version": "0.1.0",
   "author": "WalletConnect, Inc. <walletconnect.com>",
+  "homepage": "https://github.com/walletconnect/solib/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/walletconnect/solib.git"
+  },
+  "bugs": {
+    "url": "https://github.com/walletconnect/solib/issues"
+  },
   "license": "Apache-2.0",
   "files": [
     "dist"
