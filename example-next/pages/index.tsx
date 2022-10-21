@@ -45,9 +45,8 @@ function Home(): NextPage {
   useEffect(() => {
     if (address) {
       getBalance().then(value => setBalance((value && value.toString()) || '0'))
-      fetchName('FidaeBkZkvDqi1GXNEwB8uWmj9Ngx2HXSS5nyGRuVFcZ').then(name => {
-        console.log({ name })
-        setName(name.reverse || address!)
+      fetchName(address).then(name => {
+        setName(name?.reverse || address!)
       })
     }
   }, [address])
