@@ -1,14 +1,16 @@
 {
-  "name": "solib",
-  "type": "module",
+  "name": "@walletconnect/solib",
+  "description": "Solana development utilities and wrappers",
+  "version": "0.1.0",
+  "author": "WalletConnect, Inc. <walletconnect.com>",
+  "license": "Apache-2.0",
   "files": [
     "dist"
   ],
-  "private": true,
-  "version": "0.0.0",
   "main": "./dist/solib.js",
   "module": "./dist/solib.js",
   "types": "./dist/index.d.ts",
+  "type": "module",
   "scripts": {
     "dev": "vite build --watch",
     "build": "tsc && vite build && tsc --emitDeclarationOnly",
@@ -18,6 +20,13 @@
     "prettier": "prettier --check .",
     "format": "prettier --check . -w"
   },
+  "keywords": [
+    "wallet",
+		"solana",
+		"web3",
+		"crypto",
+    "walletconnect"
+  ],
   "dependencies": {
     "@ethersproject/sha2": "5.7.0",
     "@solana/web3.js": "1.63.0",
