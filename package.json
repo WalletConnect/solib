@@ -1,7 +1,7 @@
 {
   "name": "@walletconnect/solib",
   "description": "Solana development utilities and wrappers",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "WalletConnect, Inc. <walletconnect.com>",
   "homepage": "https://github.com/walletconnect/solib/",
   "repository": {
@@ -30,9 +30,9 @@
   },
   "keywords": [
     "wallet",
-		"solana",
-		"web3",
-		"crypto",
+    "solana",
+    "web3",
+    "crypto",
     "walletconnect"
   ],
   "dependencies": {
