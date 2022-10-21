@@ -92,7 +92,7 @@ const connectedWalletBalance: number = await getBalance()
 ### Sign Message
 
 ```ts
-import { signMessage } from 'solbi'
+import { signMessage } from 'solib'
 
 const signature = await signMessage('Test')
 ```
@@ -100,7 +100,7 @@ const signature = await signMessage('Test')
 ### Sign and Send Transaction
 
 ```ts
-import { signAndSendTransaction } from 'solbi'
+import { signAndSendTransaction } from 'solib'
 
 const transactionHash = signAndSendTransaction('transfer', {
   to,
