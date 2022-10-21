@@ -9,6 +9,9 @@ export function getHashedName(name: string): Buffer {
   return Buffer.from(str, 'hex')
 }
 
+// @ts-expect-error this
+if (typeof window !== 'undefined') window.getHashedName = getHashedName
+
 export async function getNameAccountKey(
   hashed_name: Buffer,
   nameClass?: PublicKey,

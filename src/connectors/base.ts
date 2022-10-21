@@ -89,7 +89,7 @@ export class BaseConnector {
         })
       )
       transaction.feePayer = fromPubkey
-    }
+    } else throw new Error(`No transaction configuration for type ${type}`)
 
     const response = await this.requestCluster('getLatestBlockhash', [{}])
 
@@ -174,8 +174,16 @@ export class BaseConnector {
     const account = await this.retrieve(reverseLookupAccount.toBase58(), 'base64')
 
     if (account) {
+      console.log('DAAAA', account.data[0])
       const dataBuffer = Buffer.from(account.data[0], 'base64')
       const deserialized = borsh.deserializeUnchecked(NameRegistry.schema, NameRegistry, dataBuffer)
+
+      console.log({
+        owner: deserialized.owner.toBase58(),
+        class: deserialized.class.toBase58(),
+        parentName: deserialized.parentName.toBase58(),
+        data: undefined
+      })
 
       deserialized.data = dataBuffer.slice(96)
 
@@ -210,6 +218,7 @@ export class BaseConnector {
     const favoriteDomainAccInfo = await this.retrieve(favKey.toBase58(), 'base64')
 
     if (!favoriteDomainAccInfo) return null
+
     const favoriteDomainData = borsh.deserialize(
       FavouriteDomain.schema,
       FavouriteDomain,
@@ -258,13 +267,17 @@ export class BaseConnector {
       headers: {
         'Content-Type': 'application/json'
       }
-    }).then(async httpRes => {
-      const json = await httpRes.json()
-
-      console.log({ json })
-
-      return json
     })
+      .then(async httpRes => {
+        const json = await httpRes.json()
+
+        console.log({ json })
+
+        return json
+      })
+      .catch(err => {
+        console.error(`Failed to fetch ${endpoint}`, err)
+      })
 
     return res.result
   }
