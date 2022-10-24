@@ -9,6 +9,7 @@ import {
 } from '../constants/splNameService'
 import { getAddress, getCluster, getNewRequestId } from '../store'
 import type {
+  AccountInfo,
   ClusterRequestMethods,
   ClusterSubscribeRequestMethods,
   FilterObject,
@@ -31,11 +32,20 @@ export interface Connector {
     params: TransactionArgs[Type]['params']
   ) => Promise<string>
   sendTransaction: (encodedTransaction: string) => Promise<string>
+  getAccount: (
+    requestedAddress?: string,
+    encoding?: 'base58' | 'base64' | 'jsonParsed'
+  ) => Promise<AccountInfo | null>
   signAndSendTransaction: <Type extends TransactionType>(
     type: Type,
     params: TransactionArgs[Type]['params']
   ) => Promise<string>
-  getBalance: (requestedAddress?: string) => Promise<number | null>
+  getBalance: (requestedAddress?: string) => Promise<{
+    formatted: string
+    value: BN
+    decimals: number
+    symbol: string
+  } | null>
   watchTransaction: (
     transactionSignature: string,
     callback: (params: unknown) => void
@@ -112,13 +122,20 @@ export class BaseConnector {
     return this.subscribeToCluster('signatureSubscribe', [transactionSignature], callback)
   }
 
-  public async getBalance(requestedAddress?: string) {
+  public async getBalance(requestedAddress?: string, currency: 'lamports' | 'sol' = 'sol') {
     const address = requestedAddress ?? getAddress()
     if (!address) return null
 
     const balance = await this.requestCluster('getBalance', [address])
 
-    return balance.value
+    const formatted = currency === 'lamports' ? `${balance.value} lamports` : `${balance.value} sol`
+
+    return {
+      value: new BN(balance.value),
+      formatted,
+      decimals: balance.value,
+      symbol: currency
+    }
   }
 
   public async getProgramAccounts(requestedAddress: string, filters?: FilterObject[]) {
@@ -149,12 +166,16 @@ export class BaseConnector {
     return accounts.map(({ pubkey }: any) => pubkey)
   }
 
-  public async retrieve(
-    nameAccountKey: string,
+  public async getAccount(
+    nameAccountKey?: string,
     encoding: 'base58' | 'base64' | 'jsonParsed' = 'base58'
   ) {
+    const address = nameAccountKey ?? getAddress()
+
+    if (!address) throw new Error('No address supplied and none connected')
+
     const response = await this.requestCluster('getAccountInfo', [
-      nameAccountKey,
+      address,
       {
         encoding
       }
@@ -171,10 +192,9 @@ export class BaseConnector {
     const hashedReverseLookup = getHashedName(address)
     const reverseLookupAccount = await getNameAccountKey(hashedReverseLookup, REVERSE_LOOKUP_CLASS)
 
-    const account = await this.retrieve(reverseLookupAccount.toBase58(), 'base64')
+    const account = await this.getAccount(reverseLookupAccount.toBase58(), 'base64')
 
     if (account) {
-      console.log('DAAAA', account.data[0])
       const dataBuffer = Buffer.from(account.data[0], 'base64')
       const deserialized = borsh.deserializeUnchecked(NameRegistry.schema, NameRegistry, dataBuffer)
 
@@ -215,7 +235,7 @@ export class BaseConnector {
       NAME_OFFERS_ID
     )
 
-    const favoriteDomainAccInfo = await this.retrieve(favKey.toBase58(), 'base64')
+    const favoriteDomainAccInfo = await this.getAccount(favKey.toBase58(), 'base64')
 
     if (!favoriteDomainAccInfo) return null
 

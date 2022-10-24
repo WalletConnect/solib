@@ -18,6 +18,12 @@ export async function signMessage(message: string) {
   })
 }
 
+export async function getAccount(requestedAddress?: string) {
+  return withConnector(async connector => {
+    return connector.getAccount(requestedAddress, 'jsonParsed')
+  })
+}
+
 export async function getBalance(requestedAddress?: string) {
   return withConnector(async connector => {
     return connector.getBalance(requestedAddress)
