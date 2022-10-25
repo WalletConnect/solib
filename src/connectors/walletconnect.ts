@@ -151,6 +151,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     }
 
     const provider = await UniversalProviderFactory.getProvider()
+    console.log('thing2')
 
     return new Promise<string>(resolve => {
       provider.on('display_uri', (uri: string) => {
@@ -161,22 +162,21 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
         else resolve(uri)
       })
 
+      console.log('connecting..')
       provider
         .connect({
           pairingTopic: undefined,
           namespaces: solanaNamespace
         })
         .then(providerResult => {
-          if (this.qrcode) {
-            if (!providerResult) throw new Error('Failed connection.')
-            const address = providerResult.namespaces.solana.accounts[0].split(':')[2]
+          if (!providerResult) throw new Error('Failed connection.')
+          const address = providerResult.namespaces.solana.accounts[0].split(':')[2]
 
-            setAddress(address)
+          setAddress(address)
 
-            console.log({ rs: providerResult })
+          console.log({ rs: providerResult })
 
-            resolve(address)
-          }
+          resolve(address)
         })
     })
   }

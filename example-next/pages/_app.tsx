@@ -14,7 +14,7 @@ const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID
 
 init(
   () => ({
-    connectorName: InjectedConnector.connectorName('window.solana'),
+    connectorName: WalletConnectConnector.connectorName,
     connectors: [
       new PhantomConnector(),
       new InjectedConnector('window.solflare'),
@@ -27,8 +27,8 @@ init(
           icons: ['https://avatars.githubusercontent.com/u/37784886'],
           url: 'http://localhost:3000'
         },
-        autoconnect: true,
-        qrcode: true
+        autoconnect: false,
+        qrcode: false
       })
     ],
     chosenCluster: mainnetBetaWalletConnect()
