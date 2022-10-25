@@ -1,4 +1,5 @@
 import type { Transaction } from '@solana/web3.js'
+import type { TransactionResult } from './transaction'
 
 export interface AccountInfo {
   data: string[]
@@ -56,6 +57,14 @@ export interface ClusterRequestMethods {
     }
   }
 
+  getTransaction: {
+    params: [
+      string,
+      { encoding: 'base58' | 'base64' | 'jsonParsed'; commitment: 'confirmed' | 'finalized' }
+    ]
+    returns: TransactionResult | null
+  }
+
   getLatestBlockhash: {
     params: [{ commitment?: string }]
     returns: {
@@ -66,7 +75,7 @@ export interface ClusterRequestMethods {
   }
 }
 
-export interface TransactionInstruction {
+export interface TransactionInstructionRq {
   programId: string
   data: string
   keys: { isSigner: boolean; isWritable: boolean; pubkey: string }[]
@@ -85,7 +94,7 @@ export interface RequestMethods {
   solana_signTransaction: {
     params: {
       feePayer: string
-      instructions: TransactionInstruction[]
+      instructions: TransactionInstructionRq[]
       recentBlockhash: string
       signatures?: { pubkey: string; signature: string }[]
     }

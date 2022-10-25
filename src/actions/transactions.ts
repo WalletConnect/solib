@@ -16,6 +16,12 @@ export async function sendTransaction(encodedTransaction: string) {
   })
 }
 
+export async function getTransaction(encodedTransaction: string) {
+  return withConnector(async connector => {
+    return connector.getTransaction(encodedTransaction)
+  })
+}
+
 export async function signAndSendTransaction<Type extends TransactionType>(
   type: Type,
   transactionArgs: TransactionArgs[Type]['params']

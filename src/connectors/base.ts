@@ -46,6 +46,9 @@ export interface Connector {
     decimals: number
     symbol: string
   } | null>
+  getTransaction: (
+    transactionSignature: string
+  ) => Promise<ClusterRequestMethods['getTransaction']['returns']>
   watchTransaction: (
     transactionSignature: string,
     callback: (params: unknown) => void
@@ -113,6 +116,15 @@ export class BaseConnector {
     const signature = await this.requestCluster('sendTransaction', [encodedTransaction])
 
     return signature
+  }
+
+  public async getTransaction(transactionSignature: string) {
+    const transaction = await this.requestCluster('getTransaction', [
+      transactionSignature,
+      { encoding: 'jsonParsed', commitment: 'confirmed' }
+    ])
+
+    return transaction
   }
 
   public async watchTransaction(

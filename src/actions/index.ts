@@ -12,7 +12,8 @@ export {
   signAndSendTransaction,
   signTransaction,
   sendTransaction,
-  watchTransaction
+  watchTransaction,
+  getTransaction
 } from './transactions'
 
 export { fetchName, getSolDomainsFromPublicKey } from './nameService'

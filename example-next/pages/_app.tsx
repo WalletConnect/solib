@@ -2,7 +2,7 @@ import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import {
   init,
-  mainnetBetaWalletConnect,
+  mainnetBetaProjectSerum,
   PhantomConnector,
   WalletConnectConnector,
   InjectedConnector
@@ -27,11 +27,11 @@ init(
           icons: ['https://avatars.githubusercontent.com/u/37784886'],
           url: 'http://localhost:3000'
         },
-        autoconnect: false,
+        autoconnect: true,
         qrcode: false
       })
     ],
-    chosenCluster: mainnetBetaWalletConnect()
+    chosenCluster: mainnetBetaProjectSerum
   }),
   PROJECT_ID
 )

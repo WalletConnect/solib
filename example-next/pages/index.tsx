@@ -5,6 +5,7 @@ import {
   getBalance,
   signAndSendTransaction,
   watchAddress,
+  getTransaction,
   watchTransaction,
   fetchName
 } from 'solib'
@@ -74,19 +75,13 @@ function Home(): NextPage {
           feePayer: 'from'
         }).then(async result => {
           console.log({ result })
-          const unsub = await watchTransaction(result!, () => {
+          await watchTransaction(result!, () => {
+            getTransaction(result!).then(tra => console.log({ tra }))
             toast({
               status: 'success',
               title: 'Transaction successful'
             })
           })
-          setTimeout(() => {
-            unsub?.()
-            toast({
-              status: 'info',
-              title: 'Unsubscribed from transaction'
-            })
-          }, 200)
         })
       }
     },
