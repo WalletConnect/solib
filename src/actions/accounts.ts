@@ -49,5 +49,5 @@ export function getNetwork() {
 }
 
 export function watchNetwork(callback: (cluster: Cluster) => void) {
-  watchCluster(callback)
+  return watchCluster(callback)
 }
