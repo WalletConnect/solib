@@ -15,3 +15,5 @@ export function init(config: () => StoreConfig, walletConnectProjectId?: string)
 export function switchConnector(connectorName: string) {
   setConnectorName(connectorName)
 }
+
+export { setProjectId, getProjectId } from '../store/index'

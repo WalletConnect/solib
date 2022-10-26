@@ -37,7 +37,7 @@ export function getAddress() {
 }
 
 export function watchAddress(callback: (address?: string) => void) {
-  storeWatchAddress(callback)
+  return storeWatchAddress(callback)
 }
 
 export function switchNetwork(cluster: Cluster) {

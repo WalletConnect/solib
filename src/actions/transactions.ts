@@ -48,3 +48,9 @@ export async function getFeeForMessage<Type extends TransactionType>(
     return connector.getFeeForMessage(type, transactionArgs)
   })
 }
+
+export async function getBlock(blockSlot: number) {
+  return withConnector(async connector => {
+    return connector.getBlock(blockSlot)
+  })
+}

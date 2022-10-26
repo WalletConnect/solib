@@ -21,6 +21,7 @@ import { registerListener, unregisterListener } from '../utils/clusterFactory'
 import { getHashedName, getNameAccountKey } from '../utils/hash'
 import borsh from 'borsh'
 import { FavouriteDomain, NameRegistry } from '../utils/nameService'
+import { BlockResult } from '../types/block'
 
 export interface Connector {
   isAvailable: () => boolean
@@ -55,6 +56,7 @@ export interface Connector {
   ) => Promise<() => void>
   getSolDomainsFromPublicKey: (address: string) => Promise<string[]>
   getFavoriteDomain: (address: string) => Promise<{ domain: PublicKey; reverse: string } | null>
+  getBlock: (slot: number) => Promise<BlockResult | null>
   getFeeForMessage: <Type extends TransactionType>(
     type: Type,
     params: TransactionArgs[Type]['params']
