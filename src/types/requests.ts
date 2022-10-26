@@ -36,6 +36,11 @@ export interface ClusterRequestMethods {
     returns: string
   }
 
+  getFeeForMessage: {
+    params: [string]
+    returns: number
+  }
+
   getBalance: {
     params: string[]
     returns: {

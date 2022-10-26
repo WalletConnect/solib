@@ -1,8 +1,10 @@
 import type { Cluster } from '../types/cluster'
 import {
   getAddress as storeGetAddress,
+  getCluster,
   setCluster,
-  watchAddress as storeWatchAddress
+  watchAddress as storeWatchAddress,
+  watchCluster
 } from '../store'
 import { withConnector } from '../utils/connector'
 
@@ -40,4 +42,12 @@ export function watchAddress(callback: (address?: string) => void) {
 
 export function switchNetwork(cluster: Cluster) {
   setCluster(cluster)
+}
+
+export function getNetwork() {
+  return getCluster()
+}
+
+export function watchNetwork(callback: (cluster: Cluster) => void) {
+  watchCluster(callback)
 }

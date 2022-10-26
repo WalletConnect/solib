@@ -39,3 +39,12 @@ export async function watchTransaction(
     return connector.watchTransaction(transactionSignature, callback)
   })
 }
+
+export async function getFeeForMessage<Type extends TransactionType>(
+  type: Type,
+  transactionArgs: TransactionArgs[Type]['params']
+) {
+  return withConnector(async connector => {
+    return connector.getFeeForMessage(type, transactionArgs)
+  })
+}

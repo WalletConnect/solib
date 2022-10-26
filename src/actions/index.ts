@@ -5,6 +5,8 @@ export {
   getBalance,
   signMessage,
   switchNetwork,
+  getNetwork,
+  watchNetwork,
   watchAddress
 } from './accounts'
 
@@ -13,7 +15,8 @@ export {
   signTransaction,
   sendTransaction,
   watchTransaction,
-  getTransaction
+  getTransaction,
+  getFeeForMessage
 } from './transactions'
 
 export { fetchName, getSolDomainsFromPublicKey } from './nameService'

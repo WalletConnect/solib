@@ -55,6 +55,10 @@ export interface Connector {
   ) => Promise<() => void>
   getSolDomainsFromPublicKey: (address: string) => Promise<string[]>
   getFavoriteDomain: (address: string) => Promise<{ domain: PublicKey; reverse: string } | null>
+  getFeeForMessage: <Type extends TransactionType>(
+    type: Type,
+    params: TransactionArgs[Type]['params']
+  ) => Promise<number>
 }
 
 export class BaseConnector {
@@ -148,6 +152,19 @@ export class BaseConnector {
       decimals: balance.value,
       symbol: currency
     }
+  }
+
+  public async getFeeForMessage<TransType extends keyof TransactionArgs>(
+    type: TransType,
+    params: TransactionArgs[TransType]['params']
+  ) {
+    const transaction = await this.constructTransaction(type, params)
+    const message = transaction.compileMessage().serialize()
+    const encodedMessage = message.toString('base64')
+
+    const result = await this.requestCluster('getFeeForMessage', [encodedMessage])
+
+    return result
   }
 
   public async getProgramAccounts(requestedAddress: string, filters?: FilterObject[]) {

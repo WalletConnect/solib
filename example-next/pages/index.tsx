@@ -4,9 +4,15 @@ import {
   signMessage,
   getBalance,
   signAndSendTransaction,
+  mainnetBetaWalletConnect,
+  mainnetBetaProjectSerum,
   watchAddress,
+  getFeeForMessage,
   getTransaction,
   watchTransaction,
+  switchNetwork,
+  getNetwork,
+  watchNetwork,
   fetchName
 } from 'solib'
 import { useCallback, useEffect, useState } from 'react'
@@ -24,6 +30,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 
+watchNetwork(cluster => console.log({ watchedCluster: cluster }))
 function Home(): NextPage {
   const toast = useToast()
   const [address, setAddress] = useState<string | undefined>('')
@@ -33,6 +40,11 @@ function Home(): NextPage {
   const [message, setMessage] = useState<string | undefined>('')
   const [toAddress, setToAddress] = useState<string | undefined>('')
   const [amount, setAmount] = useState<number>(0)
+
+  console.log({ cluster: getNetwork() })
+
+  switchNetwork(mainnetBetaWalletConnect())
+  switchNetwork(mainnetBetaProjectSerum)
 
   useEffect(() => {
     console.log('ya hey')
@@ -44,7 +56,7 @@ function Home(): NextPage {
 
   useEffect(() => {
     if (address) {
-      getBalance().then(value => setBalance((value && value.toString()) || '0'))
+      getBalance().then(value => setBalance((value && value.decimals.toString()) || '0'))
       fetchName('FidaeBkZkvDqi1GXNEwB8uWmj9Ngx2HXSS5nyGRuVFcZ').then(name => {
         setName(name?.reverse || address!)
       })
@@ -68,6 +80,13 @@ function Home(): NextPage {
   const onSendTransaction = useCallback(
     (to: string, amountInLamports: number) => {
       console.log({ to, amountInLamports })
+
+      getFeeForMessage('transfer', {
+        to,
+        amountInLamports,
+        feePayer: 'from'
+      }).then(fee => console.log({ fee }))
+
       if (to && amountInLamports) {
         signAndSendTransaction('transfer', {
           to,

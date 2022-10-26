@@ -95,10 +95,27 @@ export function setCluster(cluster: Cluster) {
   set('chosenCluster', cluster)
 }
 
+export function watchCluster(callback: (clusterName: Cluster) => void) {
+  console.log('Subscribing to cluster')
+  const unsub = subscribe(store, ops => {
+    const clusterChangedOp = ops.find(op => op[1].includes('chosenCluster'))
+
+    // Making a copy to avoid sending the proxy object
+    const { id, name, endpoint } = store.chosenCluster
+    if (clusterChangedOp)
+      callback({
+        id,
+        name,
+        endpoint
+      })
+  })
+
+  return unsub
+}
+
 export function watchAddress(callback: (address?: string) => void) {
   console.log('Subscribing to address')
   const unsub = subscribe(store, ops => {
-    console.log({ ops })
     const addressChangeOp = ops.find(op => op[1].includes('address'))
 
     if (addressChangeOp) callback(store.address)
