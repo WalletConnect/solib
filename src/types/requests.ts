@@ -1,4 +1,5 @@
 import type { Transaction } from '@solana/web3.js'
+import { BlockResult } from './block'
 import type { TransactionResult } from './transaction'
 
 export interface AccountInfo {
@@ -39,6 +40,11 @@ export interface ClusterRequestMethods {
   getFeeForMessage: {
     params: [string]
     returns: number
+  }
+
+  getBlock: {
+    params: [number]
+    returns: BlockResult | null
   }
 
   getBalance: {

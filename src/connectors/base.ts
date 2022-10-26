@@ -256,6 +256,12 @@ export class BaseConnector {
     return allDomainNames
   }
 
+  public async getBlock(slot: number) {
+    const block = await this.requestCluster('getBlock', [slot])
+
+    return block
+  }
+
   public async getFavoriteDomain(address: string) {
     const domainBuffer = Buffer.from('favourite_domain')
     const pubkeyBuffer = new PublicKey(address).toBuffer()
