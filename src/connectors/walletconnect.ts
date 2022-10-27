@@ -42,7 +42,9 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
       console.log('WC constructor > autoconnect true')
       UniversalProviderFactory.getProvider().then(provider => {
         console.log('Provider state', { provider })
-        if (provider.session.namespaces.solana.accounts.length) {
+        // (TODO update typing for provider)
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (provider.session?.namespaces?.solana?.accounts?.length) {
           const [defaultAccount] = provider.session.namespaces.solana.accounts
           console.log('Found accounts', defaultAccount)
           const address = defaultAccount.split(':')[2]
@@ -153,7 +155,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     const provider = await UniversalProviderFactory.getProvider()
     console.log('thing2')
 
-    return new Promise<string>(resolve => {
+    return new Promise<string>((resolve, reject) => {
       provider.on('display_uri', (uri: string) => {
         if (this.qrcode)
           QRCodeModal.open(uri, (data: unknown) => {
@@ -170,13 +172,15 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
         })
         .then(providerResult => {
           if (!providerResult) throw new Error('Failed connection.')
-          const address = providerResult.namespaces.solana.accounts[0].split(':')[2]
+          // (TODO update typing for provider)
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          const address = providerResult.namespaces?.solana?.accounts[0]?.split(':')[2]
 
-          setAddress(address)
-
-          console.log({ rs: providerResult })
-
-          resolve(address)
+          if (address) {
+            setAddress(address)
+            console.log({ rs: providerResult })
+            resolve(address)
+          } else reject(new Error('Could not resolve address'))
         })
     })
   }
