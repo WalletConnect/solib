@@ -28,7 +28,7 @@ init(
           url: 'http://localhost:3000'
         },
         autoconnect: true,
-        qrcode: false
+        qrcode: true
       })
     ],
     chosenCluster: mainnetBetaProjectSerum

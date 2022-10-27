@@ -141,6 +141,9 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
   public async connect() {
     const chosenCluster = getCluster()
     const clusterId = `solana:${chosenCluster.id}`
+
+    console.log({ clusterId })
+
     const solanaNamespace = {
       solana: {
         chains: [clusterId],
