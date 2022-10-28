@@ -32,3 +32,9 @@ export const devnet: Cluster = {
   id: '8E9rvCKLFQia2Y35HXjjpWzj8weVo44K',
   endpoint: 'https://api.devnet.solana.com'
 }
+
+export const mainnetBetaBlockDaemon: Cluster = {
+  name: 'mainnet',
+  id: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ',
+  endpoint: 'https://try-rpc.mainnet.solana.blockdaemon.tech/'
+}

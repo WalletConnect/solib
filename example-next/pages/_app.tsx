@@ -2,7 +2,7 @@ import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import {
   init,
-  mainnetBeta,
+  mainnetBetaBlockDaemon,
   PhantomConnector,
   WalletConnectConnector,
   InjectedConnector
@@ -13,7 +13,7 @@ const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID
 
 init(
   () => ({
-    connectorName: WalletConnectConnector.connectorName,
+    connectorName: PhantomConnector.connectorName(),
     connectors: [
       new PhantomConnector(),
       new InjectedConnector('window.solflare'),
@@ -30,7 +30,7 @@ init(
         qrcode: true
       })
     ],
-    chosenCluster: mainnetBeta
+    chosenCluster: mainnetBetaBlockDaemon
   }),
   PROJECT_ID
 )

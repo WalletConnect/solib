@@ -5,8 +5,8 @@ import {
   disconnect,
   getBalance,
   signAndSendTransaction,
-  mainnetBetaWalletConnect,
-  mainnetBetaProjectSerum,
+  getConnectorIsAvailable,
+  PhantomConnector,
   watchAddress,
   getFeeForMessage,
   getTransaction,
@@ -34,6 +34,7 @@ import {
 watchNetwork(cluster => console.log({ watchedCluster: cluster }))
 function Home(): NextPage {
   const toast = useToast()
+  console.log('Phantom is ready', getConnectorIsAvailable(PhantomConnector.connectorName()))
   const [address, setAddress] = useState<string | undefined>('')
   const [name, setName] = useState<string | undefined>('')
   const [balance, setBalance] = useState<string | undefined>('')

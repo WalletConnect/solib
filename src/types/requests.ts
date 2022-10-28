@@ -1,5 +1,5 @@
 import type { Transaction } from '@solana/web3.js'
-import { BlockResult } from './block'
+import type { BlockResult } from './block'
 import type { TransactionResult } from './transaction'
 
 export interface AccountInfo {
@@ -48,7 +48,7 @@ export interface ClusterRequestMethods {
   }
 
   getBalance: {
-    params: string[]
+    params: [string, { commitment: 'processed' }]
     returns: {
       value: number
     }

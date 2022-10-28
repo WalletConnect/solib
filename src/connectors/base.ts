@@ -145,7 +145,7 @@ export class BaseConnector {
     const address = requestedAddress ?? getAddress()
     if (!address) return null
 
-    const balance = await this.requestCluster('getBalance', [address])
+    const balance = await this.requestCluster('getBalance', [address, { commitment: 'processed' }])
 
     const formatted = currency === 'lamports' ? `${balance.value} lamports` : `${balance.value} sol`
 

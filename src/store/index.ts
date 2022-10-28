@@ -98,7 +98,7 @@ export function getActiveConnector() {
 export function getConnectorIsAvailable(name: string) {
   const connector = getConnector(name)
 
-  return connector.isAvailable
+  return connector.isAvailable()
 }
 
 export function setCluster(cluster: Cluster) {

@@ -1,6 +1,7 @@
 export {
   mainnetBetaProjectSerum,
   mainnetBetaWalletConnect,
+  mainnetBetaBlockDaemon,
   mainnetBeta,
   devnet,
   testnet
