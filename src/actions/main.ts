@@ -16,4 +16,4 @@ export function switchConnector(connectorName: string) {
   setConnectorName(connectorName)
 }
 
-export { setProjectId, getProjectId } from '../store/index'
+export { setProjectId, getProjectId, getConnectorIsAvailable } from '../store/index'

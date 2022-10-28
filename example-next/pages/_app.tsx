@@ -2,13 +2,12 @@ import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import {
   init,
-  mainnetBetaProjectSerum,
+  mainnetBeta,
   PhantomConnector,
   WalletConnectConnector,
   InjectedConnector
 } from 'solib'
 import { ColorModeProvider, ChakraProvider } from '@chakra-ui/react'
-console.log('aaa')
 
 const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID
 
@@ -31,7 +30,7 @@ init(
         qrcode: true
       })
     ],
-    chosenCluster: mainnetBetaProjectSerum
+    chosenCluster: mainnetBeta
   }),
   PROJECT_ID
 )

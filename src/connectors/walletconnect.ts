@@ -56,6 +56,20 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
 
   public static readonly connectorName = 'walletconnect'
 
+  public async disconnect() {
+    const provider = await UniversalProviderFactory.getProvider()
+
+    try {
+      await provider.disconnect()
+    } finally {
+      // (TODO update typing for provider)
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      delete provider.session?.namespaces?.solana
+    }
+
+    setAddress('')
+  }
+
   public getConnectorName(): string {
     return WalletConnectConnector.connectorName
   }

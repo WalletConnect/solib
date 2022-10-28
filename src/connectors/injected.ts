@@ -23,6 +23,11 @@ export class InjectedConnector extends BaseConnector implements Connector {
     this.injectedWalletPath = injectedWallet
   }
 
+  public async disconnect() {
+    const provider = await this.getProvider()
+    provider.disconnect()
+  }
+
   public static connectorName(walletName: string) {
     return `injected-${walletName}`
   }

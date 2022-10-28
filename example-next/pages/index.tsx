@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import {
   connect,
   signMessage,
+  disconnect,
   getBalance,
   signAndSendTransaction,
   mainnetBetaWalletConnect,
@@ -42,9 +43,6 @@ function Home(): NextPage {
   const [amount, setAmount] = useState<number>(0)
 
   console.log({ cluster: getNetwork() })
-
-  switchNetwork(mainnetBetaWalletConnect())
-  switchNetwork(mainnetBetaProjectSerum)
 
   useEffect(() => {
     console.log('ya hey')
@@ -120,6 +118,7 @@ function Home(): NextPage {
             <Badge fontSize="1em" fontStyle={'italic'}>
               Balance: {balance}
             </Badge>
+            <Button onClick={() => disconnect()}>Disconnect</Button>
           </Flex>
         )}
         {address && (

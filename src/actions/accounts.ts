@@ -51,3 +51,9 @@ export function getNetwork() {
 export function watchNetwork(callback: (cluster: Cluster) => void) {
   return watchCluster(callback)
 }
+
+export async function disconnect() {
+  return withConnector(async connector => {
+    return connector.disconnect()
+  })
+}

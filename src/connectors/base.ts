@@ -21,11 +21,12 @@ import { registerListener, unregisterListener } from '../utils/clusterFactory'
 import { getHashedName, getNameAccountKey } from '../utils/hash'
 import borsh from 'borsh'
 import { FavouriteDomain, NameRegistry } from '../utils/nameService'
-import { BlockResult } from '../types/block'
+import type { BlockResult } from '../types/block'
 
 export interface Connector {
   isAvailable: () => boolean
   getConnectorName: () => string
+  disconnect: () => Promise<void>
   connect: () => Promise<string>
   signMessage: (message: string) => Promise<string>
   signTransaction: <Type extends TransactionType>(

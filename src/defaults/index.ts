@@ -1,1 +1,7 @@
-export { mainnetBetaProjectSerum, mainnetBetaWalletConnect, devnet, testnet } from './clusters'
+export {
+  mainnetBetaProjectSerum,
+  mainnetBetaWalletConnect,
+  mainnetBeta,
+  devnet,
+  testnet
+} from './clusters'

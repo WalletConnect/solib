@@ -7,6 +7,12 @@ export const mainnetBetaProjectSerum: Cluster = {
   endpoint: `https://solana-api.projectserum.com`
 }
 
+export const mainnetBeta: Cluster = {
+  name: 'mainnetBeta',
+  id: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ',
+  endpoint: `https://api.mainnet-beta.solana.com`
+}
+
 export function mainnetBetaWalletConnect() {
   return {
     name: 'mainnetBeta',

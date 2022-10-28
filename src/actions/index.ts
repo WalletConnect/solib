@@ -1,6 +1,7 @@
 export { init, switchConnector } from './main'
 export {
   connect,
+  disconnect,
   getAddress,
   getBalance,
   signMessage,

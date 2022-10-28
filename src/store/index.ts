@@ -80,15 +80,25 @@ export function getConnecterId() {
   return get('connectorName')
 }
 
-export function getActiveConnector() {
+function getConnector(name: string) {
   const { connectors } = store
+  const connector = connectors.find(connector => connector.getConnectorName() === name)
+
+  if (!connector) throw new Error('Invalid connector id configured')
+
+  return connector
+}
+
+export function getActiveConnector() {
   const id = store.connectorName
 
-  const activeConnector = connectors.find(connector => connector.getConnectorName() === id)
+  return getConnector(id)
+}
 
-  if (!activeConnector) throw new Error('Invalid connector id configured')
+export function getConnectorIsAvailable(name: string) {
+  const connector = getConnector(name)
 
-  return activeConnector
+  return connector.isAvailable
 }
 
 export function setCluster(cluster: Cluster) {
