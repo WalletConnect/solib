@@ -49,13 +49,9 @@ export class InjectedConnector extends BaseConnector implements Connector {
       }, window)
 
       if (injectedWalletProvider) return Promise.resolve(injectedWalletProvider)
-
-      return Promise.reject(
-        new Error(`Injected wallet not found at path ${this.injectedWalletPath}`)
-      )
     }
 
-    throw new Error('No Phantom provider found')
+    return Promise.resolve(null)
   }
 
   public isAvailable(): boolean {
@@ -74,8 +70,9 @@ export class InjectedConnector extends BaseConnector implements Connector {
 
       return resp.publickey.toString()
     } else if (resp === true) {
-      const pubkey = (await this.getProvider()).publickey
-      setAddress(pubkey)
+      const provider = await this.getProvider()
+      const pubkey = provider.pubkey || provider.publicKey
+      setAddress(pubkey.toString())
 
       return pubkey
     }
