@@ -8,6 +8,20 @@ Getting started with Solib is as simple as calling a couple of functions. No
 need to worry about managing clients or state, all of it is handled in the
 background.
 
+## Installation
+
+Instal Solib using the following
+
+### NPM
+```bash
+npm install --save @walletconnect/solib
+```
+
+### Yarn
+```bash
+yarn add @walletconnect/solib
+```
+
 ## Initializing Solib
 
 The init function needs to be called to prepare solib to be able to call all the functions in its API.
