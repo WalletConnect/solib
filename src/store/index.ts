@@ -82,7 +82,9 @@ export function getConnecterId() {
 
 function getConnector(name: string) {
   const { connectors } = store
-  const connector = connectors.find(connector => connector.getConnectorName() === name)
+  const connector = connectors.find(
+    availableConnector => availableConnector.getConnectorName() === name
+  )
 
   if (!connector) throw new Error('Invalid connector id configured')
 

@@ -12,16 +12,8 @@ const config = {
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
-  favicon: 'img/favicon.ico',
-
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'walletconnect', // Usually your GitHub org/user name.
-  projectName: 'solib', // Usually your repo name.
-
-  // Even if you don't use internalization, you can use this field to set useful
-  // metadata like html lang. For example, if your site is Chinese, you may want
-  // to replace "en" with "zh-Hans".
+  organizationName: 'walletconnect',
+  projectName: 'solib',
   i18n: {
     defaultLocale: 'en',
     locales: ['en']
@@ -33,9 +25,10 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          routeBasePath: "/",
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-          'https://github.com/walletconnect/solib'
+          'https://github.com/WalletConnect/solib/tree/development/docs'
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css')
@@ -49,21 +42,18 @@ const config = {
     ({
       navbar: {
         title: 'Solib',
-        logo: {
-          alt: 'Solib',
-          src: 'img/logo.svg'
-        },
         items: [
           {
             type: 'doc',
             docId: 'intro',
             position: 'left',
-            label: 'Doc'
+            label: 'Docs'
           },
           {
             href: 'https://github.com/walletconnect/solib',
-            label: 'GitHub',
-            position: 'right'
+            position: 'right',
+            className: 'header-github-link',
+            'aria-label': 'GitHub repository',
           }
         ]
       },
@@ -74,8 +64,8 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
-                to: '/docs/intro'
+                label: 'Getting Started',
+                to: '/'
               }
             ]
           },
@@ -107,6 +97,11 @@ const config = {
           }
         ],
         copyright: `Copyright © ${new Date().getFullYear()} WalletConnect, Inc.`
+      },
+      colorMode: {
+        defaultMode: 'dark',
+        disableSwitch: false,
+        respectPrefersColorScheme: false,
       },
       prism: {
         theme: lightCodeTheme,
