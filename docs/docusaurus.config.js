@@ -8,7 +8,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 const config = {
   title: 'Solib',
   tagline: 'Friendly Solana API ',
-  url: 'https://docs.solib.com',
+  url: 'https://solib.dev/',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
