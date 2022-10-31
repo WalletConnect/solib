@@ -28,11 +28,14 @@ const config = {
           routeBasePath: "/",
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-          'https://github.com/WalletConnect/solib/tree/development/docs'
+          'https://github.com/WalletConnect/solib/tree/development/docs',
+          remarkPlugins: [
+            [require("@docusaurus/remark-plugin-npm2yarn"), { sync: true }],
+          ],
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css')
-        }
+        },
       })
     ]
   ],
