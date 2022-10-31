@@ -12,14 +12,8 @@ background.
 
 Instal Solib using the following
 
-### NPM
-```bash
+```bash npm2yarn
 npm install --save @walletconnect/solib
-```
-
-### Yarn
-```bash
-yarn add @walletconnect/solib
 ```
 
 ## Initializing Solib
