@@ -1,9 +1,16 @@
 ---
 sidebar_position: 1
 slug: /
+title: Getting Started
 ---
 
-# Getting started
+
+# Solib
+
+Solib is a friendly, easy to use Solana API. All the functionality needed to interact with Solana is baked into Solib, including connecting wallets, signing messages, sending transactions, interacting with Bonafida's name service  and more.
+
+## Getting started
+
 Getting started with Solib is as simple as calling a couple of functions. No
 need to worry about managing clients or state, all of it is handled in the
 background.
