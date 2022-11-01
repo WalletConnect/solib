@@ -32,7 +32,6 @@ import {
   useToast
 } from '@chakra-ui/react'
 
-watchNetwork(cluster => console.log({ watchedCluster: cluster }))
 function Home(): NextPage {
   const toast = useToast()
   console.log('Phantom is ready', getConnectorIsAvailable(PhantomConnector.connectorName()))
@@ -43,8 +42,6 @@ function Home(): NextPage {
   const [message, setMessage] = useState<string | undefined>('')
   const [toAddress, setToAddress] = useState<string | undefined>('')
   const [amount, setAmount] = useState<number>(0)
-
-  console.log({ cluster: getNetwork() })
 
   useEffect(() => {
     console.log('ya hey')
@@ -60,7 +57,7 @@ function Home(): NextPage {
       fetchName('FidaeBkZkvDqi1GXNEwB8uWmj9Ngx2HXSS5nyGRuVFcZ').then(name => {
         setName(name?.reverse || address!)
       })
-      fetchAddressFromDomain('levi.sol').then(addr => {
+      fetchAddressFromDomain('bonfida.sol').then(addr => {
         console.log({ addressFromDomain: addr })
       })
       getAccount().then(acc => console.log({ accthing: acc?.rentEpoch }))

@@ -174,7 +174,7 @@ export class BaseConnector {
   public async getProgramAccounts(requestedAddress: string, filters?: FilterObject[]) {
     const programAccounts = await this.requestCluster('getProgramAccounts', [
       requestedAddress,
-      filters ?? []
+      { filters: filters ?? [], encoding: 'jsonParsed', withContext: true }
     ])
 
     return programAccounts.value
@@ -230,13 +230,6 @@ export class BaseConnector {
     if (account) {
       const dataBuffer = Buffer.from(account.data[0], 'base64')
       const deserialized = borsh.deserializeUnchecked(NameRegistry.schema, NameRegistry, dataBuffer)
-
-      console.log({
-        owner: deserialized.owner.toBase58(),
-        class: deserialized.class.toBase58(),
-        parentName: deserialized.parentName.toBase58(),
-        data: undefined
-      })
 
       deserialized.data = dataBuffer.slice(96)
 
