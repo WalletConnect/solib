@@ -27,3 +27,9 @@ export async function fetchName(address: string): Promise<FetchNameResult> {
     return connector.getFavoriteDomain(address)
   })
 }
+
+export async function fetchAddressFromDomain(domain: string): Promise<string | null> {
+  return withConnector(async connector => {
+    return connector.getAddressFromDomain(domain)
+  })
+}

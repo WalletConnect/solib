@@ -21,4 +21,4 @@ export {
   getFeeForMessage
 } from './transactions'
 
-export { fetchName, getSolDomainsFromPublicKey } from './nameService'
+export { fetchName, fetchAddressFromDomain, getSolDomainsFromPublicKey } from './nameService'

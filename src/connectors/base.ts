@@ -56,6 +56,7 @@ export interface Connector {
     callback: (params: unknown) => void
   ) => Promise<() => void>
   getSolDomainsFromPublicKey: (address: string) => Promise<string[]>
+  getAddressFromDomain: (address: string) => Promise<string | null>
   getFavoriteDomain: (address: string) => Promise<{ domain: PublicKey; reverse: string } | null>
   getBlock: (slot: number) => Promise<BlockResult | null>
   getFeeForMessage: <Type extends TransactionType>(
@@ -263,6 +264,23 @@ export class BaseConnector {
     const block = await this.requestCluster('getBlock', [slot])
 
     return block
+  }
+
+  public async getAddressFromDomain(domain: string) {
+    const hashed = getHashedName(domain.replace('.sol', ''))
+
+    const nameAccountKey = await getNameAccountKey(hashed, undefined, ROOT_DOMAIN_ACCOUNT)
+    const ownerDataRaw = await this.getAccount(nameAccountKey.toBase58(), 'base64')
+
+    if (!ownerDataRaw) return null
+
+    const ownerData = borsh.deserializeUnchecked(
+      NameRegistry.schema,
+      NameRegistry,
+      Buffer.from(ownerDataRaw.data[0], 'base64')
+    )
+
+    return ownerData.owner.toBase58()
   }
 
   public async getFavoriteDomain(address: string) {

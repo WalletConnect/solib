@@ -11,10 +11,11 @@ import {
   getFeeForMessage,
   getTransaction,
   watchTransaction,
-  switchNetwork,
   getNetwork,
   watchNetwork,
-  fetchName
+  fetchName,
+  fetchAddressFromDomain,
+  getAccount
 } from 'solib'
 import { useCallback, useEffect, useState } from 'react'
 import {
@@ -59,6 +60,10 @@ function Home(): NextPage {
       fetchName('FidaeBkZkvDqi1GXNEwB8uWmj9Ngx2HXSS5nyGRuVFcZ').then(name => {
         setName(name?.reverse || address!)
       })
+      fetchAddressFromDomain('levi.sol').then(addr => {
+        console.log({ addressFromDomain: addr })
+      })
+      getAccount().then(acc => console.log({ accthing: acc?.rentEpoch }))
     }
   }, [address])
 
