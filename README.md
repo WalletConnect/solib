@@ -2,6 +2,8 @@
 
 **Solana** friendly API
 
+Checkout [the complete docs](https://solib-docs.vercel.app)!
+
 # Current Capabilities
 
 ## API
@@ -32,7 +34,6 @@ init({
   connectors: [
     new PhantomConnector(),
     new WalletConnectConnector({
-      projectId: PROJECT_ID,
       relayerRegion: 'wss://relay.walletconnect.com',
       metadata: {
         description: 'Test app for solib',
@@ -51,8 +52,8 @@ init({
   // The name of the cluster and network to use.
   // Here, `mainnetBeta` refers to the mainnetBeta Solana network, while
   // `WalletConnect` is the RPC server thhat will be used to do the communication
-  chosenCluster: mainnetBetaWalletConnect(PROJECT_ID)
-})
+  chosenCluster: mainnetBetaWalletConnect()
+}, WALLETCONNECT_PROJECT_ID)
 ```
 
 ### Connect Wallet
