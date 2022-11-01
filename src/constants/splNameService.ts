@@ -21,3 +21,12 @@ export const NAME_PROGRAM_ID = new PublicKey('namesLPneVptA9Z5rqUDD9tMTWEJwofgaY
  * The reverse look up class
  */
 export const REVERSE_LOOKUP_CLASS = new PublicKey('33m47vH6Eav6jr5Ry86XjhRft2jRBLDnDgPSHoquXi2Z')
+
+export const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
+
+/**
+ * Mainnet program ID
+ */
+export const NAME_TOKENIZER_ID = new PublicKey('nftD3vbNkNqfj2Sd3HZwbpw4BxxKWr4AjGb9X38JeZk')
+
+export const MINT_PREFIX = Buffer.from('tokenized_name')

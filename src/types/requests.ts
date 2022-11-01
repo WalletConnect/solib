@@ -55,9 +55,16 @@ export interface ClusterRequestMethods {
   }
 
   getProgramAccounts: {
-    params: [string, FilterObject[]]
+    params: [
+      string,
+      {
+        filters?: FilterObject[]
+        encoding: 'base58' | 'base64' | 'jsonParsed'
+        withContext?: boolean
+      }
+    ]
     returns: {
-      value: AccountInfo[]
+      value: { account: AccountInfo }[]
     }
   }
 
