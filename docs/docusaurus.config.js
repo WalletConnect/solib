@@ -18,7 +18,7 @@ const config = {
     defaultLocale: 'en',
     locales: ['en']
   },
-
+  scripts: [{src: 'https://plausible.io/js/plausible.js', defer: true, 'data-domain': 'solib.dev'}],
   presets: [
     [
       'classic',
