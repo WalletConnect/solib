@@ -1,5 +1,6 @@
 import UniversalProvider from '@walletconnect/universal-provider'
 import type { WalletConnectAppMetadata } from '../connectors/walletconnect'
+import { setAddress } from '../store'
 
 const DEFAULT_LOGGER = 'error'
 
@@ -62,11 +63,9 @@ export class UniversalProviderFactory {
     )
 
     // Subscribe to session delete
-    UniversalProviderFactory.provider.on(
-      'session_delete',
-      ({ id, topic }: { id: number; topic: string }) => {
-        console.log(id, topic)
-      }
-    )
+    UniversalProviderFactory.provider.on('session_delete', () => {
+      delete UniversalProviderFactory.provider?.session.namespaces.solana
+      setAddress('')
+    })
   }
 }

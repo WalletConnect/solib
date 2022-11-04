@@ -38,8 +38,13 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
       metadata,
       qrcode: this.qrcode
     })
-    if (autoconnect) {
-      console.log('WC constructor > autoconnect true')
+    UniversalProviderFactory.getProvider().then(provider => {
+      provider.on('session_delete', () => {
+        delete provider.session.namespaces.solana
+        setAddress('')
+      })
+    })
+    if (autoconnect)
       UniversalProviderFactory.getProvider().then(provider => {
         console.log('Provider state', { provider })
         // (TODO update typing for provider)
@@ -51,7 +56,6 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
           setAddress(address)
         }
       })
-    }
   }
 
   public static readonly connectorName = 'walletconnect'
