@@ -16,6 +16,7 @@ export default defineConfig(() => ({
       formats: ['es'],
       name: 'Solib'
     },
+    minify: 'esbuild',
     rollupOptions: {
       external: isExternal
     }

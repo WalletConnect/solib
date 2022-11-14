@@ -16,7 +16,7 @@ import {
   fetchName,
   fetchAddressFromDomain,
   getAccount
-} from 'solib'
+} from '@walletconnect/solib'
 import { useCallback, useEffect, useState } from 'react'
 import {
   Badge,

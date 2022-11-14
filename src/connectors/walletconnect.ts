@@ -1,5 +1,4 @@
 import type UniversalProvider from '@walletconnect/universal-provider'
-import QRCodeModal from '@walletconnect/qrcode-modal'
 import type { Connector } from './base'
 import { BaseConnector } from './base'
 import type { TransactionArgs, TransactionType } from '../types/requests'
@@ -179,8 +178,10 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     return new Promise<string>((resolve, reject) => {
       provider.on('display_uri', (uri: string) => {
         if (this.qrcode)
-          QRCodeModal.open(uri, (data: unknown) => {
-            console.log('Opened QRCodeModal', data)
+          import('@walletconnect/qrcode-modal').then(({ default: { open } }) => {
+            open(uri, () => {
+              console.log('Opened Modal')
+            })
           })
         else resolve(uri)
       })
