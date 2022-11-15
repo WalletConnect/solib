@@ -1,6 +1,10 @@
+import { polyfill } from './utils/polyfill'
+
 export * from './actions'
 export * from './defaults'
 export * from './connectors'
+
+polyfill()
 
 export type { Cluster } from './types/cluster'
 export type { StoreConfig } from './store/index'

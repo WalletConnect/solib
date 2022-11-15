@@ -20,6 +20,7 @@ import type {
 import { registerListener, unregisterListener } from '../utils/clusterFactory'
 import { getHashedName, getNameAccountKey } from '../utils/hash'
 import borsh from 'borsh'
+import { Buffer } from 'buffer'
 import { FavouriteDomain, NameRegistry } from '../utils/nameService'
 import type { BlockResult } from '../types/block'
 

@@ -1,5 +1,4 @@
 import type UniversalProvider from '@walletconnect/universal-provider'
-import QRCodeModal from '@walletconnect/qrcode-modal'
 import type { Connector } from './base'
 import { BaseConnector } from './base'
 import type { TransactionArgs, TransactionType } from '../types/requests'
@@ -7,6 +6,7 @@ import base58 from 'bs58'
 import { PublicKey } from '@solana/web3.js'
 import { UniversalProviderFactory } from '../utils/universalProvider'
 import { getAddress, getCluster, getProjectId, setAddress } from '../store'
+import { Buffer } from 'buffer'
 
 export interface WalletConnectAppMetadata {
   name: string
@@ -38,8 +38,13 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
       metadata,
       qrcode: this.qrcode
     })
-    if (autoconnect) {
-      console.log('WC constructor > autoconnect true')
+    UniversalProviderFactory.getProvider().then(provider => {
+      provider.on('session_delete', () => {
+        delete provider.session.namespaces.solana
+        setAddress('')
+      })
+    })
+    if (autoconnect)
       UniversalProviderFactory.getProvider().then(provider => {
         console.log('Provider state', { provider })
         // (TODO update typing for provider)
@@ -51,7 +56,6 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
           setAddress(address)
         }
       })
-    }
   }
 
   public static readonly connectorName = 'walletconnect'
@@ -175,8 +179,10 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     return new Promise<string>((resolve, reject) => {
       provider.on('display_uri', (uri: string) => {
         if (this.qrcode)
-          QRCodeModal.open(uri, (data: unknown) => {
-            console.log('Opened QRCodeModal', data)
+          import('@walletconnect/qrcode-modal').then(({ default: { open } }) => {
+            open(uri, () => {
+              console.log('Opened Modal')
+            })
           })
         else resolve(uri)
       })
