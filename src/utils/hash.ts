@@ -1,4 +1,5 @@
 import { sha256 } from '@ethersproject/sha2'
+import { Buffer } from 'buffer'
 import { PublicKey } from '@solana/web3.js'
 import { HASH_PREFIX, NAME_PROGRAM_ID } from '../constants/splNameService'
 

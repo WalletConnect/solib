@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js'
+import { Buffer } from 'buffer'
 
 /**
  * Hash prefix used to derive domain name addresses

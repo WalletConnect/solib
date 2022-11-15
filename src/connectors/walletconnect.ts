@@ -6,6 +6,7 @@ import base58 from 'bs58'
 import { PublicKey } from '@solana/web3.js'
 import { UniversalProviderFactory } from '../utils/universalProvider'
 import { getAddress, getCluster, getProjectId, setAddress } from '../store'
+import { Buffer } from 'buffer'
 
 export interface WalletConnectAppMetadata {
   name: string
