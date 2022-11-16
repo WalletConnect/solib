@@ -7,6 +7,8 @@ import { PublicKey } from '@solana/web3.js'
 import { UniversalProviderFactory } from '../utils/universalProvider'
 import { getAddress, getCluster, getProjectId, setAddress } from '../store'
 import { Buffer } from 'buffer'
+import { ModalCtrl } from '@web3modal/core'
+import '@web3modal/ui'
 
 export interface WalletConnectAppMetadata {
   name: string
@@ -44,6 +46,9 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
         setAddress('')
       })
     })
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (typeof document !== 'undefined' && document && qrcode)
+      document.getElementsByTagName('body')[0].appendChild(document.createElement('w3m-modal'))
     if (autoconnect)
       UniversalProviderFactory.getProvider().then(provider => {
         console.log('Provider state', { provider })
@@ -174,20 +179,13 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     }
 
     const provider = await UniversalProviderFactory.getProvider()
-    console.log('thing2')
 
     return new Promise<string>((resolve, reject) => {
       provider.on('display_uri', (uri: string) => {
-        if (this.qrcode)
-          import('@walletconnect/qrcode-modal').then(({ default: { open } }) => {
-            open(uri, () => {
-              console.log('Opened Modal')
-            })
-          })
+        if (this.qrcode) ModalCtrl.open({ uri, standaloneChains: [clusterId] })
         else resolve(uri)
       })
 
-      console.log('connecting..')
       provider
         .connect({
           pairingTopic: undefined,
@@ -201,8 +199,8 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
 
           if (address) {
             setAddress(address)
-            console.log({ rs: providerResult })
             resolve(address)
+            ModalCtrl.close()
           } else reject(new Error('Could not resolve address'))
         })
     })
