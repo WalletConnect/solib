@@ -46,9 +46,13 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     })
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (typeof document !== 'undefined' && document && qrcode)
-      import('@web3modal/ui').then(() => {
-        document.getElementsByTagName('body')[0].appendChild(document.createElement('w3m-modal'))
-      })
+      import('@web3modal/ui')
+        .then(() => {
+          document.getElementsByTagName('body')[0].appendChild(document.createElement('w3m-modal'))
+        })
+        .catch(() => {
+          console.error('No web3modal package found')
+        })
     if (autoconnect)
       UniversalProviderFactory.getProvider().then(provider => {
         console.log('Provider state', { provider })
@@ -183,9 +187,13 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     return new Promise<string>((resolve, reject) => {
       provider.on('display_uri', (uri: string) => {
         if (this.qrcode)
-          import('@web3modal/core').then(({ ModalCtrl }) => {
-            ModalCtrl.open({ uri, standaloneChains: [clusterId] })
-          })
+          import('@web3modal/core')
+            .then(({ ModalCtrl }) => {
+              ModalCtrl.open({ uri, standaloneChains: [clusterId] })
+            })
+            .catch(() => {
+              console.error('No web3modal package found')
+            })
         else resolve(uri)
       })
 
@@ -203,7 +211,13 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
           if (address) {
             setAddress(address)
             resolve(address)
-            ModalCtrl.close()
+            import('@web3modal/core')
+              .then(({ ModalCtrl }) => {
+                ModalCtrl.close()
+              })
+              .catch(() => {
+                console.error('No web3modal package found')
+              })
           } else reject(new Error('Could not resolve address'))
         })
     })
