@@ -7,8 +7,6 @@ import { PublicKey } from '@solana/web3.js'
 import { UniversalProviderFactory } from '../utils/universalProvider'
 import { getAddress, getCluster, getProjectId, setAddress } from '../store'
 import { Buffer } from 'buffer'
-import { ModalCtrl } from '@web3modal/core'
-import '@web3modal/ui'
 
 export interface WalletConnectAppMetadata {
   name: string
@@ -48,7 +46,9 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     })
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (typeof document !== 'undefined' && document && qrcode)
-      document.getElementsByTagName('body')[0].appendChild(document.createElement('w3m-modal'))
+      import('@web3modal/ui').then(() => {
+        document.getElementsByTagName('body')[0].appendChild(document.createElement('w3m-modal'))
+      })
     if (autoconnect)
       UniversalProviderFactory.getProvider().then(provider => {
         console.log('Provider state', { provider })
@@ -182,7 +182,10 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
 
     return new Promise<string>((resolve, reject) => {
       provider.on('display_uri', (uri: string) => {
-        if (this.qrcode) ModalCtrl.open({ uri, standaloneChains: [clusterId] })
+        if (this.qrcode)
+          import('@web3modal/core').then(({ ModalCtrl }) => {
+            ModalCtrl.open({ uri, standaloneChains: [clusterId] })
+          })
         else resolve(uri)
       })
 
