@@ -1,7 +1,7 @@
 {
   "name": "@walletconnect/solib",
   "description": "Solana development utilities and wrappers",
-  "version": "0.2.3-canary.19",
+  "version": "0.2.3-canary.20",
   "author": "WalletConnect, Inc. <walletconnect.com>",
   "homepage": "https://github.com/walletconnect/solib/",
   "repository": {
