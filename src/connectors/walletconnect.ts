@@ -23,7 +23,12 @@ async function importW3mModalCtrl(qrcode: boolean) {
     if (qrcode)
       import('@web3modal/core')
         .then(({ ModalCtrl }) => resolve(ModalCtrl))
-        .catch(e => console.error('No @web3modal/core', e))
+        .catch(e =>
+          console.error(
+            'No @web3modal/core module found. It is needed when using the qrcode option',
+            e
+          )
+        )
   })
 }
 
@@ -34,7 +39,9 @@ function loadW3mModal(qrcode: boolean) {
       .then(() => {
         document.getElementsByTagName('body')[0].appendChild(document.createElement('w3m-modal'))
       })
-      .catch(e => console.error('No @web3modal/ui', e))
+      .catch(e =>
+        console.error('No @web3modal/ui module found. It is needed when using the qrcode option', e)
+      )
 }
 
 export class WalletConnectConnector extends BaseConnector implements Connector {
@@ -205,7 +212,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
       provider.on('display_uri', (uri: string) => {
         if (this.qrcode)
           importW3mModalCtrl(this.qrcode).then(ModalCtrl => {
-            ModalCtrl?.open({ uri, standaloneChains: [clusterId] })
+            ModalCtrl.open({ uri, standaloneChains: [clusterId] })
           })
         else resolve(uri)
       })
@@ -225,7 +232,7 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
             setAddress(address)
             resolve(address)
             importW3mModalCtrl(this.qrcode).then(ModalCtrl => {
-              ModalCtrl?.close()
+              ModalCtrl.close()
             })
           } else reject(new Error('Could not resolve address'))
         })

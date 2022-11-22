@@ -27,7 +27,7 @@ init(
           url: 'http://localhost:3000'
         },
         autoconnect: true,
-        qrcode: true
+        qrcode: false
       })
     ],
     chosenCluster: mainnetBetaBlockDaemon
