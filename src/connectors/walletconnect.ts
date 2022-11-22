@@ -15,6 +15,28 @@ export interface WalletConnectAppMetadata {
   icons: string[]
 }
 
+async function importW3mModalCtrl(qrcode: boolean) {
+  return new Promise<{
+    open: (arg: { uri: string; standaloneChains: string[] }) => void
+    close: () => void
+  }>(resolve => {
+    if (qrcode)
+      import('@web3modal/core')
+        .then(({ ModalCtrl }) => resolve(ModalCtrl))
+        .catch(e => console.error('No @web3modal/core', e))
+  })
+}
+
+// Require is used because import checks for the package at build time
+function loadW3mModal(qrcode: boolean) {
+  if (qrcode)
+    import('@web3modal/ui')
+      .then(() => {
+        document.getElementsByTagName('body')[0].appendChild(document.createElement('w3m-modal'))
+      })
+      .catch(e => console.error('No @web3modal/ui', e))
+}
+
 export class WalletConnectConnector extends BaseConnector implements Connector {
   protected provider: UniversalProvider | undefined
   protected qrcode: boolean
@@ -45,14 +67,11 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
       })
     })
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (typeof document !== 'undefined' && document && qrcode)
-      import('@web3modal/ui')
-        .then(() => {
-          document.getElementsByTagName('body')[0].appendChild(document.createElement('w3m-modal'))
-        })
-        .catch(() => {
-          console.error('No web3modal package found')
-        })
+    if (typeof document !== 'undefined' && document && qrcode) {
+      console.log({ qrcode })
+      loadW3mModal(qrcode)
+    }
+
     if (autoconnect)
       UniversalProviderFactory.getProvider().then(provider => {
         console.log('Provider state', { provider })
@@ -169,8 +188,6 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     const chosenCluster = getCluster()
     const clusterId = `solana:${chosenCluster.id}`
 
-    console.log({ clusterId })
-
     const solanaNamespace = {
       solana: {
         chains: [clusterId],
@@ -187,13 +204,9 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
     return new Promise<string>((resolve, reject) => {
       provider.on('display_uri', (uri: string) => {
         if (this.qrcode)
-          import('@web3modal/core')
-            .then(({ ModalCtrl }) => {
-              ModalCtrl.open({ uri, standaloneChains: [clusterId] })
-            })
-            .catch(() => {
-              console.error('No web3modal package found')
-            })
+          importW3mModalCtrl(this.qrcode).then(ModalCtrl => {
+            ModalCtrl?.open({ uri, standaloneChains: [clusterId] })
+          })
         else resolve(uri)
       })
 
@@ -208,16 +221,12 @@ export class WalletConnectConnector extends BaseConnector implements Connector {
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           const address = providerResult.namespaces?.solana?.accounts[0]?.split(':')[2]
 
-          if (address) {
+          if (address && this.qrcode) {
             setAddress(address)
             resolve(address)
-            import('@web3modal/core')
-              .then(({ ModalCtrl }) => {
-                ModalCtrl.close()
-              })
-              .catch(() => {
-                console.error('No web3modal package found')
-              })
+            importW3mModalCtrl(this.qrcode).then(ModalCtrl => {
+              ModalCtrl?.close()
+            })
           } else reject(new Error('Could not resolve address'))
         })
     })
