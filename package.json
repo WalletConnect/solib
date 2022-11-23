@@ -1,7 +1,7 @@
 {
   "name": "@walletconnect/solib",
   "description": "Solana development utilities and wrappers",
-  "version": "0.2.3-canary.24",
+  "version": "0.2.3-canary.25",
   "author": "WalletConnect, Inc. <walletconnect.com>",
   "homepage": "https://github.com/walletconnect/solib/",
   "repository": {
@@ -42,7 +42,6 @@
     "borsh": "0.7.0",
     "bs58": "5.0.0",
     "buffer": "^6.0.3",
-    "optional-require": "^1.1.8",
     "valtio": "1.7.0"
   },
   "peerDependencies": {
@@ -68,7 +67,6 @@
     "tslib": "2.4.0",
     "typescript": "4.6.4",
     "vite": "3.1.0",
-    "vite-plugin-require": "^1.0.8",
     "vitest": "^0.24.3"
   }
 }
