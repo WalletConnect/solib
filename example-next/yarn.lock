@@ -1578,10 +1578,10 @@
     "@walletconnect/utils" "2.1.3"
     pino "7.11.0"
 
-"@walletconnect/solib@^0.2.3-canary.24":
-  version "0.2.3-canary.24"
-  resolved "https://registry.yarnpkg.com/@walletconnect/solib/-/solib-0.2.3-canary.24.tgz#9ff2b575f81e6785f62a4713183a0827bb82453e"
-  integrity sha512-3dyatER4ORDtwOQS6xSilorUWzj6Xr4Ws2sbxQgM1Yf877fvct93k0Q3l2ZPc/U1ogBJwSZxByeNHBhb8r5AMQ==
+"@walletconnect/solib@^0.2.3-canary.25":
+  version "0.2.3-canary.25"
+  resolved "https://registry.yarnpkg.com/@walletconnect/solib/-/solib-0.2.3-canary.25.tgz#19b2d1f505ad7c73fd0c2c60f7d54e6de2c63828"
+  integrity sha512-18YlSDMCjk/S1MtgrntxFLw0nOlm7I1xNRbQ19rXbP/MELh2AhZx0BMsFqihovq1uMEHhgkD5EpQvCpas3YvJg==
   dependencies:
     "@ethersproject/sha2" "^5.7.0"
     "@walletconnect/universal-provider" "^2.1.3"
@@ -1589,7 +1589,6 @@
     borsh "0.7.0"
     bs58 "5.0.0"
     buffer "^6.0.3"
-    optional-require "^1.1.8"
     valtio "1.7.0"
 
 "@walletconnect/time@1.0.1", "@walletconnect/time@^1.0.1":
@@ -3213,13 +3212,6 @@ once@^1.3.0, once@^1.3.1, once@^1.4.0:
   dependencies:
     wrappy "1"
 
-optional-require@^1.1.8:
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/optional-require/-/optional-require-1.1.8.tgz#16364d76261b75d964c482b2406cb824d8ec44b7"
-  integrity sha512-jq83qaUb0wNg9Krv1c5OQ+58EK+vHde6aBPzLvPPqJm89UQWsvSuFy9X/OSNJnFeSOKo7btE0n8Nl2+nE+z5nA==
-  dependencies:
-    require-at "^1.0.6"
-
 optionator@^0.9.1:
   version "0.9.1"
   resolved "https://registry.yarnpkg.com/optionator/-/optionator-0.9.1.tgz#4f236a6373dae0566a6d43e1326674f50c291499"
@@ -3536,11 +3528,6 @@ regexpp@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/regexpp/-/regexpp-3.2.0.tgz#0425a2768d8f23bad70ca4b90461fa2f1213e1b2"
   integrity sha512-pq2bWo9mVD43nbts2wGv17XLiNLya+GklZ8kaDLV2Z08gDCsGpnKn9BFMepvWuHCbyVvY7J5o5+BVvoQbmlJLg==
-
-require-at@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/require-at/-/require-at-1.0.6.tgz#9eb7e3c5e00727f5a4744070a7f560d4de4f6e6a"
-  integrity sha512-7i1auJbMUrXEAZCOQ0VNJgmcT2VOKPRl2YGJwgpHpC9CE91Mv4/4UYIUm4chGJaI381ZDq1JUicFii64Hapd8g==
 
 resolve-from@^4.0.0:
   version "4.0.0"

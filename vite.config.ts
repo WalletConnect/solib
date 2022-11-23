@@ -10,13 +10,6 @@ export default defineConfig(() => ({
   define: {
     global: {}
   },
-  resolve: {
-    alias: {
-      '@web3modal/core': fs.existsSync(path.resolve(__dirname, './node_modules/@web3modal/core'))
-        ? '@web3modal/core'
-        : path.resolve(__dirname, './src/utils/w3mcore')
-    }
-  },
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),

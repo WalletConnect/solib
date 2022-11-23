@@ -91,15 +91,14 @@ function Home() {
           feePayer: 'from'
         }).then(async result => {
           console.log({ result })
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          await watchTransaction(result!, () => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            getTransaction(result!).then(tra => console.log({ tra }))
-            toast({
-              status: 'success',
-              title: 'Transaction successful'
+          if (result)
+            await watchTransaction(result, () => {
+              getTransaction(result).then(tra => console.log({ tra }))
+              toast({
+                status: 'success',
+                title: 'Transaction successful'
+              })
             })
-          })
         })
     },
     [toast]
