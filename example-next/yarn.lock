@@ -1578,10 +1578,10 @@
     "@walletconnect/utils" "2.1.3"
     pino "7.11.0"
 
-"@walletconnect/solib@^0.2.3-canary.25":
-  version "0.2.3-canary.25"
-  resolved "https://registry.yarnpkg.com/@walletconnect/solib/-/solib-0.2.3-canary.25.tgz#19b2d1f505ad7c73fd0c2c60f7d54e6de2c63828"
-  integrity sha512-18YlSDMCjk/S1MtgrntxFLw0nOlm7I1xNRbQ19rXbP/MELh2AhZx0BMsFqihovq1uMEHhgkD5EpQvCpas3YvJg==
+"@walletconnect/solib@^0.2.3-canary.26":
+  version "0.2.3-canary.26"
+  resolved "https://registry.yarnpkg.com/@walletconnect/solib/-/solib-0.2.3-canary.26.tgz#bbcce671b31454d62c3a9773cdeaec7f5163121a"
+  integrity sha512-5jths2Ju+x7kddhU6/Q/e2GWKcQe73VnVst0r4GhIz7lF2qGnH/M50pdpzlb2ZxDRPooHpUZEW0hs8tkUdRiag==
   dependencies:
     "@ethersproject/sha2" "^5.7.0"
     "@walletconnect/universal-provider" "^2.1.3"
