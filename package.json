@@ -1,7 +1,7 @@
 {
   "name": "@walletconnect/solib",
   "description": "Solana development utilities and wrappers",
-  "version": "0.2.3-canary.6",
+  "version": "0.2.3-canary.26",
   "author": "WalletConnect, Inc. <walletconnect.com>",
   "homepage": "https://github.com/walletconnect/solib/",
   "repository": {
@@ -46,7 +46,8 @@
   },
   "peerDependencies": {
     "@solana/web3.js": "1.63.0",
-    "@walletconnect/qrcode-modal": "1.8.0"
+    "@web3modal/core": "^2.0.0-beta.5",
+    "@web3modal/ui": "^2.0.0-beta.5"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
@@ -54,7 +55,8 @@
     "@types/bn.js": "5.1.1",
     "@typescript-eslint/eslint-plugin": "5.40.0",
     "@typescript-eslint/parser": "5.40.0",
-    "@walletconnect/qrcode-modal": "1.8.0",
+    "@web3modal/core": "^2.0.0-beta.5",
+    "@web3modal/ui": "^2.0.0-beta.5",
     "better-sqlite3": "7.6.2",
     "eslint": "8.25.0",
     "eslint-config-prettier": "8.5.0",

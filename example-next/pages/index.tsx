@@ -1,4 +1,3 @@
-import type { NextPage } from 'next'
 import {
   connect,
   signMessage,
@@ -11,8 +10,6 @@ import {
   getFeeForMessage,
   getTransaction,
   watchTransaction,
-  getNetwork,
-  watchNetwork,
   fetchName,
   fetchAddressFromDomain,
   getAccount
@@ -32,7 +29,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 
-function Home(): NextPage {
+function Home() {
   const toast = useToast()
   console.log('Phantom is ready', getConnectorIsAvailable(PhantomConnector.connectorName()))
   const [address, setAddress] = useState<string | undefined>('')
@@ -45,17 +42,17 @@ function Home(): NextPage {
 
   useEffect(() => {
     console.log('ya hey')
-    watchAddress(address => {
-      console.log('Got address', address)
-      setAddress(address)
+    watchAddress(address2 => {
+      console.log('Got address', address2)
+      setAddress(address2)
     })
   }, [setAddress])
 
   useEffect(() => {
     if (address) {
-      getBalance().then(value => setBalance((value && value.decimals.toString()) || '0'))
-      fetchName('FidaeBkZkvDqi1GXNEwB8uWmj9Ngx2HXSS5nyGRuVFcZ').then(name => {
-        setName(name?.reverse || address!)
+      getBalance().then(value => setBalance(value?.decimals.toString() ?? '0'))
+      fetchName('FidaeBkZkvDqi1GXNEwB8uWmj9Ngx2HXSS5nyGRuVFcZ').then(name2 => {
+        setName(name2?.reverse ?? address)
       })
       fetchAddressFromDomain('bonfida.sol').then(addr => {
         console.log({ addressFromDomain: addr })
@@ -70,12 +67,11 @@ function Home(): NextPage {
     })
   }, [])
 
-  const onSign = useCallback((message: string | undefined) => {
-    if (message) {
-      signMessage(message).then(signature => {
-        setSignature(signature!)
+  const onSign = useCallback((message2: string | undefined) => {
+    if (message2)
+      signMessage(message2).then(signature2 => {
+        setSignature(signature2 ?? '')
       })
-    }
   }, [])
 
   const onSendTransaction = useCallback(
@@ -88,22 +84,22 @@ function Home(): NextPage {
         feePayer: 'from'
       }).then(fee => console.log({ fee }))
 
-      if (to && amountInLamports) {
+      if (to && amountInLamports)
         signAndSendTransaction('transfer', {
           to,
           amountInLamports,
           feePayer: 'from'
         }).then(async result => {
           console.log({ result })
-          await watchTransaction(result!, () => {
-            getTransaction(result!).then(tra => console.log({ tra }))
-            toast({
-              status: 'success',
-              title: 'Transaction successful'
+          if (result)
+            await watchTransaction(result, () => {
+              getTransaction(result).then(tra => console.log({ tra }))
+              toast({
+                status: 'success',
+                title: 'Transaction successful'
+              })
             })
-          })
         })
-      }
     },
     [toast]
   )
@@ -121,7 +117,7 @@ function Home(): NextPage {
             <Badge fontSize="1em" fontStyle={'italic'}>
               Balance: {balance}
             </Badge>
-            <Button onClick={() => disconnect()}>Disconnect</Button>
+            <Button onClick={async () => disconnect()}>Disconnect</Button>
           </Flex>
         )}
         {address && (
@@ -148,7 +144,7 @@ function Home(): NextPage {
                   </NumberInputStepper>
                 </NumberInput>
               </Flex>
-              <Button onClick={() => onSendTransaction(toAddress!, amount)}>
+              <Button onClick={() => onSendTransaction(toAddress ?? '', amount)}>
                 Send Transaction
               </Button>
             </Flex>
