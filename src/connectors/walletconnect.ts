@@ -19,6 +19,10 @@ async function importW3mModalCtrl() {
   try {
     const web3modalCore = await import('@web3modal/core')
 
+    web3modalCore.ConfigCtrl.setConfig({
+      projectId: getProjectId()
+    })
+
     return web3modalCore.ModalCtrl
   } catch {
     throw new Error('No @web3modal/core module found. It is needed when using the qrcode option')

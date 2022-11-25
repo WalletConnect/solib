@@ -1,6 +1,5 @@
 // vite.config.js
 import path from 'path'
-import fs from 'fs'
 import { defineConfig } from 'vite'
 
 const isExternal = (id: string) => !id.startsWith('.') && !path.isAbsolute(id)
