@@ -109,7 +109,13 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme
-      }
+      },
+      algolia: {
+        appId: "5FPHHB04CT",
+        apiKey: "cde5ebe0be71faf99d8d5be3de33b96e",
+        indexName: "solib",
+        contextualSearch: true,
+      },
     })
 }
 
