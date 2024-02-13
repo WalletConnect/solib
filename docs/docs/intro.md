@@ -7,6 +7,14 @@ title: Getting Started
 
 # Solib
 
+
+:::danger Deprecation Notice
+
+Effective as of February 13th, 2024, Solib has been deprecated.
+If your project is impacted by this change, please open an issue on [Github Discussions](https://github.com/orgs/WalletConnect/discussions) to address any concerns or seek assistance.
+
+:::
+
 Solib is a friendly, easy to use Solana API. All the functionality needed to interact with Solana is baked into Solib, including connecting wallets, signing messages, sending transactions, interacting with Bonafida's name service  and more.
 
 ## Getting started
