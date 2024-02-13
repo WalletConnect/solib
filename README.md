@@ -1,5 +1,10 @@
 # Solib
 
+> [!CAUTION]
+> Effective as of February 13th, 2024, Solib has been deprecated.
+>
+> If your project is impacted by this change, please open an issue on [Github Discussions](https://github.com/orgs/WalletConnect/discussions) to address any concerns or seek assistance.
+
 **Solana** friendly API
 
 Checkout [the complete docs](https://solib-docs.vercel.app)!
